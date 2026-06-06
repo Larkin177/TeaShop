@@ -4,6 +4,7 @@ var AUTH = require("utils/auth");
 
 App({
   onLaunch: function () {
+    wx.removeStorageSync("token"); wx.removeStorageSync("uid"); wx.removeStorageSync("userInfo");
     wx.setStorageSync("mallName", "古茗茶饮");
     var that = this;
 
@@ -41,7 +42,7 @@ App({
     if (e && e.query && e.query.inviter_id) {
       wx.setStorageSync("referrer", e.query.inviter_id);
     }
-    this.autoLogin();
+    // this.autoLogin(); // disabled: user must explicitly login
   },
 
   autoLogin: function () {
@@ -59,8 +60,13 @@ App({
               wx.setStorageSync("userInfo", loginRes.data.user);
               console.log("auto login success");
             }
+          }).catch(function(err) {
+            console.log("auto login wx api error:", err);
           });
         }
+      },
+      fail: function(err) {
+        console.log("wx.login fail (dev env):", err);
       }
     });
   },

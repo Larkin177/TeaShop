@@ -172,7 +172,14 @@ function wxaQrcode() { return Promise.resolve({ code: 700 }); }
 function videoDetail() { return Promise.resolve({ code: 700 }); }
 function wxaMpLiveRooms() { return Promise.resolve({ code: 0, data: [] }); }
 function uploadFile() { return Promise.resolve({ code: 700 }); }
-function login_wx(code) { return request('/auth/wx-mini-login', 'POST', { code: code }); }
+function login_wx(code) {
+  var deviceId = wx.getStorageSync('wx_device_id');
+  if (!deviceId) {
+    deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    wx.setStorageSync('wx_device_id', deviceId);
+  }
+  return request('/auth/wx-mini-login', 'POST', { code: deviceId });
+}
 function login_wx_with_info(code, nickname, avatar) { return request('/auth/wx-mini-login', 'POST', { code: code, nickname: nickname, avatar: avatar }); }
 function register_complex(params) { return request('/auth/wx-mini-register', 'POST', params); }
 module.exports = {

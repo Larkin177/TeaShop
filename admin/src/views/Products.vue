@@ -11,7 +11,7 @@
       <el-table-column :label="t('image')" width="80"><template #default="{row}"><el-image :src="row.image" style="width:50px;height:50px" fit="cover" /></template></el-table-column>
       <el-table-column prop="name" :label="t('name')" min-width="120" />
       <el-table-column :label="t('category')" width="100"><template #default="{row}">{{ catName(row.categoryId) }}</template></el-table-column>
-      <el-table-column prop="basePrice" :label="t('price')" width="80"><template #default="{row}">\u00A5{{ row.basePrice }}</template></el-table-column>
+      <el-table-column prop="basePrice" :label="t('price')" width="80"><template #default="{row}">¥{{ row.basePrice }}</template></el-table-column>
       <el-table-column prop="monthlySales" :label="t('sales')" width="80" />
       <el-table-column :label="t('status')" width="80"><template #default="{row}"><el-tag :type="row.status===1?'success':'info'" size="small">{{ row.status===1?t('active'):t('inactive') }}</el-tag></template></el-table-column>
       <el-table-column :label="t('recommend')" width="80"><template #default="{row}"><el-tag :type="row.isRecommended===1?'warning':'info'" size="small">{{ row.isRecommended===1?t('active'):t('inactive') }}</el-tag></template></el-table-column>

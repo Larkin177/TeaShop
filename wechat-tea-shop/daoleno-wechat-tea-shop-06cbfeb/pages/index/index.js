@@ -2,7 +2,7 @@ const WXAPI = require('apifm-wxapi')
 const TOOLS = require('../../utils/tools.js')
 
 const APP = getApp()
-// fixed首次打开不显示标题的bug
+// fixed棣栨鎵撳紑涓嶆樉绀烘爣棰樼殑bug
 APP.configLoadOK = () => {
   wx.setNavigationBarTitle({
     title: wx.getStorageSync('mallName')
@@ -11,10 +11,9 @@ APP.configLoadOK = () => {
 
 Page({
   data: {
-    inputVal: "", // 搜索框内容
-    goodsRecommend: [], // 推荐商品
-    kanjiaList: [], //砍价商品列表
-    pingtuanList: [], //拼团商品列表
+    inputVal: "", // 鎼滅储妗嗗唴瀹?    goodsRecommend: [], // 鎺ㄨ崘鍟嗗搧
+    kanjiaList: [], //鐮嶄环鍟嗗搧鍒楄〃
+    pingtuanList: [], //鎷煎洟鍟嗗搧鍒楄〃
 
     loadingHidden: false, // loading
     selectCurrent: 0,
@@ -29,7 +28,8 @@ Page({
 
     curPage: 1,
     pageSize: 20,
-    cateScrollTop: 0
+    cateScrollTop: 0,
+    wxlogin: true
   },
 
   tabClick: function(e) {
@@ -82,6 +82,10 @@ Page({
       title: wx.getStorageSync('mallName')
     })
     this.initBanners()
+    var _token = wx.getStorageSync('token');
+    if (!_token) {
+      that.setData({ wxlogin: false });
+    }
     this.categories()
     WXAPI.goods({
       recommendStatus: 1
@@ -127,13 +131,13 @@ Page({
   },
   async initBanners(){
     const _data = {}
-    // 读取头部轮播图
+    // [comment]
     const res1 = await WXAPI.banners({
       type: 'index'
     })
     if (res1.code == 700) {
       wx.showModal({
-        title: '提示',
+        title: '鎻愮ず',
         content: '请在后台添加 banner 轮播图片，自定义类型填写 index',
         showCancel: false
       })
@@ -146,7 +150,7 @@ Page({
     this.setData({
       shopInfo: wx.getStorageSync('shopInfo')
     })
-    // 获取购物车数据，显示TabBarBadge
+    // 鑾峰彇璐墿杞︽暟鎹紝鏄剧ずTabBarBadge
     TOOLS.showTabBarBadge()
     this.goodsDynamic()
     this.miaoshaGoods()
@@ -255,7 +259,7 @@ Page({
     this.getGoodsList(this.data.activeCategoryId)
     wx.stopPullDownRefresh()
   },
-  // 获取砍价商品
+  // 鑾峰彇鐮嶄环鍟嗗搧
   async kanjiaGoods(){
     const res = await WXAPI.goods({
       kanjia: true
@@ -319,4 +323,60 @@ Page({
       url: '/pages/goods/list?name=' + this.data.inputVal,
     })
   }
+
+  ,
+  processWxLogin: function() {
+    var _this = this;
+    wx.login({
+      success: function(res) {
+        if (res.code) {
+          wx.showLoading({ title: '\u767B\u5F55\u4E2D...' });
+          WXAPI.login_wx(res.code).then(function(loginRes) {
+            wx.hideLoading();
+            if (loginRes.code === 0 && loginRes.data && loginRes.data.token) {
+              wx.setStorageSync('token', loginRes.data.token);
+              wx.setStorageSync('uid', loginRes.data.user ? loginRes.data.user.id : '');
+              wx.setStorageSync('userInfo', loginRes.data.user);
+              _this.setData({ wxlogin: true });
+              wx.showToast({ title: '\u767B\u5F55\u6210\u529F', icon: 'success' });
+            } else {
+              wx.showToast({ title: loginRes.message || '\u767B\u5F55\u5931\u8D25', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  },
+  onPhoneInput: function(e) { this.setData({ loginPhone: e.detail.value }) },
+  onPasswordInput: function(e) { this.setData({ loginPassword: e.detail.value }) },
+  processPhoneLogin: function() {
+    var phone = this.data.loginPhone, pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) { wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' }); return; }
+    if (!pwd) { wx.showToast({ title: '\u8BF7\u8F93\u5165\u5BC6\u7801', icon: 'none' }); return; }
+    var _this = this;
+    wx.showLoading({ title: '\u767B\u5F55\u4E2D...' });
+    WXAPI.login(phone, pwd).then(function(res) {
+      wx.hideLoading();
+      if (res.code === 0) {
+        _this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' });
+        wx.showToast({ title: '\u767B\u5F55\u6210\u529F', icon: 'success' });
+      } else { wx.showToast({ title: res.message || '\u767B\u5F55\u5931\u8D25', icon: 'none' }); }
+    });
+  },
+  processRegister: function() {
+    var phone = this.data.loginPhone, pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) { wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' }); return; }
+    if (!pwd || pwd.length < 4) { wx.showToast({ title: '\u5BC6\u7801\u81F3\u5C114\u4F4D', icon: 'none' }); return; }
+    var _this = this;
+    wx.showLoading({ title: '\u6CE8\u518C\u4E2D...' });
+    WXAPI.register(phone, pwd, '\u8336\u53CB').then(function(res) {
+      wx.hideLoading();
+      if (res.code === 0) {
+        _this.setData({ wxlogin: true });
+        wx.showToast({ title: '\u6CE8\u518C\u6210\u529F', icon: 'success' });
+      } else { wx.showToast({ title: res.message || '\u6CE8\u518C\u5931\u8D25', icon: 'none' }); }
+    });
+  },
+  cancelLogin: function() { this.setData({ wxlogin: true }) },
+  goLogin: function() { this.setData({ wxlogin: false }) }
 })

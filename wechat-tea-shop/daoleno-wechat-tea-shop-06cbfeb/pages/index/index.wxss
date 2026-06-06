@@ -1,3 +1,4 @@
+@import "../../template/login/index.wxss";
 .shops-container {
   display: flex;
   justify-content: space-between;
@@ -344,7 +345,7 @@
   padding: 0 32rpx;
   margin-bottom: 16rpx;
 }
-/*秒杀*/
+/*绉掓潃*/
 .miaosha-container {
   padding: 0;
 }

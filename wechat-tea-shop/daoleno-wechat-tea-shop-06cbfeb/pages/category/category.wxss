@@ -1,3 +1,4 @@
+@import "../../template/login/index.wxss";
 page {
   width: 100vw;
   height: 100vh;

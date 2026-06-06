@@ -21,7 +21,7 @@
             <el-table-column prop="order_no" :label="t('orderNo')" width="180" />
             <el-table-column prop="store_name" :label="t('store')" />
             <el-table-column prop="pay_amount" :label="t('amount')">
-              <template #default="{ row }"><span style="color: #e64340; font-weight: bold">\u00A5{{ row.pay_amount }}</span></template>
+              <template #default="{ row }"><span style="color: #e64340; font-weight: bold">¥{{ row.pay_amount }}</span></template>
             </el-table-column>
             <el-table-column prop="status" :label="t('status')">
               <template #default="{ row }"><el-tag :type="statusType(row.status)" size="small">{{ statusText(row.status) }}</el-tag></template>
@@ -34,7 +34,7 @@
           <template #header><span style="font-weight: bold">{{ t('topProducts') }}</span></template>
           <el-table :data="topProducts" stripe size="small" max-height="350">
             <el-table-column prop="name" :label="t('name')" />
-            <el-table-column prop="base_price" :label="t('price')"><template #default="{ row }">\u00A5{{ row.base_price }}</template></el-table-column>
+            <el-table-column prop="base_price" :label="t('price')"><template #default="{ row }">¥{{ row.base_price }}</template></el-table-column>
             <el-table-column prop="monthly_sales" :label="t('sales')" />
             <el-table-column prop="status" :label="t('status')">
               <template #default="{ row }"><el-tag :type="row.status===1?'success':'info'" size="small">{{ row.status===1?t('active'):t('inactive') }}</el-tag></template>
@@ -55,7 +55,7 @@ const cards = computed(() => [
   { key: 'totalProducts', value: stats.value.totalProducts || 0, icon: 'Goods', color: '#409eff' },
   { key: 'totalOrders', value: stats.value.totalOrders || 0, icon: 'Document', color: '#67c23a' },
   { key: 'totalUsers', value: stats.value.totalUsers || 0, icon: 'User', color: '#e6a23c' },
-  { key: 'revenue', value: '\u00A5' + (stats.value.totalRevenue || 0), icon: 'Money', color: '#f56c6c' },
+  { key: 'revenue', value: '¥' + (stats.value.totalRevenue || 0), icon: 'Money', color: '#f56c6c' },
 ])
 function statusText(s) { return [t('pending'),t('paid'),t('preparing'),t('delivering'),t('completed'),t('cancelled')][s] || '?' }
 function statusType(s) { return ['warning','primary','info','','success','danger'][s] || 'info' }

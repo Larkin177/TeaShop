@@ -16,7 +16,7 @@
       <el-table-column prop="user_nickname" :label="t('customer')" width="100" />
       <el-table-column prop="user_phone" :label="t('phone')" width="120" />
       <el-table-column prop="store_name" :label="t('store')" />
-      <el-table-column prop="pay_amount" :label="t('amount')" width="80"><template #default="{row}"><span style="color:#e64340;font-weight:bold">\u00A5{{ row.pay_amount }}</span></template></el-table-column>
+      <el-table-column prop="pay_amount" :label="t('amount')" width="80"><template #default="{row}"><span style="color:#e64340;font-weight:bold">¥{{ row.pay_amount }}</span></template></el-table-column>
       <el-table-column :label="t('status')" width="100"><template #default="{row}"><el-tag :type="st(row.status)" size="small">{{ stxt(row.status) }}</el-tag></template></el-table-column>
       <el-table-column prop="remark" :label="t('remark')" />
       <el-table-column prop="created_at" :label="t('created')" width="160" />
