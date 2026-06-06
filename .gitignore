@@ -1,0 +1,14 @@
+﻿node_modules/
+dist/
+*.db
+*.db-shm
+*.db-wal
+*.log
+.env
+.DS_Store
+Thumbs.db
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.bat
