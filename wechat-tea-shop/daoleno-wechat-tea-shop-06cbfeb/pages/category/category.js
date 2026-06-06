@@ -335,4 +335,29 @@ Page({
       wx.showToast({ title: res.message || '\u6CE8\u518C\u5931\u8D25', icon: 'none' });
     }
   }
+
+  ,
+  processWxLogin: function() {
+    var _this = this;
+    wx.login({
+      success: function(res) {
+        if (res.code) {
+          wx.showLoading({ title: '登录中...' });
+          WXAPI.login_wx(res.code).then(function(loginRes) {
+            wx.hideLoading();
+            if (loginRes.code === 0 && loginRes.data && loginRes.data.token) {
+              wx.setStorageSync('token', loginRes.data.token);
+              wx.setStorageSync('uid', loginRes.data.user ? loginRes.data.user.id : '');
+              wx.setStorageSync('userInfo', loginRes.data.user);
+              _this.setData({ wxlogin: true });
+              if (_this.onShow) _this.onShow();
+              wx.showToast({ title: '登录成功', icon: 'success' });
+            } else {
+              wx.showToast({ title: loginRes.message || '登录失败', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  }
 })
