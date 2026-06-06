@@ -1,0 +1,32 @@
+﻿server:
+  port: 3001
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3308/teashop?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    property-naming-strategy: LOWER_CAMEL_CASE
+
+app:
+  jwt:
+    secret: teashop-secret-2024-spring-boot-jwt-key
+    expiration: 604800000  # 7 days in ms
+  upload:
+    dir: uploads
+
+logging:
+  level:
+    com.teashop: INFO

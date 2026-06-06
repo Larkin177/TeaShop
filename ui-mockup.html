@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古茗茶饮 - UI 效果图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f0ebe3; display: flex; justify-content: center; padding: 30px 20px; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; }
+  .phone { width: 390px; background: #f8f5f0; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden; position: relative; }
+  .status-bar { display: flex; justify-content: space-between; padding: 12px 24px 8px; font-size: 12px; color: #1a1a1a; font-weight: 600; }
+  .store-header { padding: 0 16px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+  .store-left { display: flex; align-items: center; gap: 8px; }
+  .store-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #7bc67e, #4a9e4d); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+  .store-info h2 { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .store-info .meta { font-size: 11px; color: #999; margin-top: 2px; }
+  .store-right { display: flex; align-items: center; gap: 4px; background: #f5f0e8; padding: 6px 12px; border-radius: 20px; font-size: 12px; color: #666; }
+  .order-type { display: flex; gap: 0; margin: 12px 16px; background: #f0ebe3; border-radius: 10px; padding: 3px; }
+  .order-type button { flex: 1; border: none; background: transparent; padding: 8px 0; border-radius: 8px; font-size: 13px; font-weight: 500; color: #999; cursor: pointer; transition: all 0.2s; }
+  .order-type button.active { background: #4a9e4d; color: white; box-shadow: 0 2px 8px rgba(74,158,77,0.3); }
+  .content { display: flex; height: 520px; }
+  .sidebar { width: 90px; background: #f5f0e8; overflow-y: auto; padding: 4px 0; }
+  .sidebar-item { padding: 12px 8px; text-align: center; font-size: 12px; color: #666; cursor: pointer; border-left: 3px solid transparent; }
+  .sidebar-item.active { background: #f8f5f0; color: #4a9e4d; font-weight: 600; border-left-color: #4a9e4d; }
+  .sidebar-item .emoji { display: block; font-size: 20px; margin-bottom: 3px; }
+  .product-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .product-card { background: white; border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .product-img { width: 72px; height: 72px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+  .product-info { flex: 1; min-width: 0; }
+  .product-info h3 { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .product-info .desc { font-size: 11px; color: #bbb; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .product-info .sales { font-size: 10px; color: #ccc; margin-top: 3px; }
+  .product-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .price { color: #e85c3a; font-weight: 700; font-size: 15px; }
+  .price small { font-size: 10px; font-weight: 400; color: #999; }
+  .add-btn { width: 26px; height: 26px; border-radius: 50%; background: #ff7a2e; border: none; color: white; font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .tab-bar { display: flex; background: white; border-top: 1px solid #eee; padding: 6px 0 12px; }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: #999; cursor: pointer; border: none; background: none; padding: 4px 0; position: relative; }
+  .tab-item .icon { font-size: 22px; line-height: 1; }
+  .tab-item.active { color: #ff7a2e; }
+  .tab-item .badge { position: absolute; top: 0; right: 50%; transform: translateX(16px); background: #ff4d4f; color: white; font-size: 10px; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: 600; }
+  .section-label { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px 6px; }
+  .section-label h3 { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .home-header { background: linear-gradient(135deg, #4a9e4d, #3d8a40); padding: 44px 20px 24px; color: white; }
+  .home-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .home-header-top h1 { font-size: 20px; font-weight: 700; }
+  .store-tag { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .search-bar { background: rgba(255,255,255,0.9); border-radius: 24px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 13px; }
+  .banner { margin: 12px 16px; height: 120px; border-radius: 14px; background: linear-gradient(135deg, #a8d8a8, #7bc67e); display: flex; align-items: center; padding: 0 24px; position: relative; overflow: hidden; }
+  .banner-text h2 { color: white; font-size: 20px; font-weight: 700; }
+  .banner-text p { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 4px; }
+  .banner-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .dot.active { background: white; }
+  .banner-emoji { position: absolute; right: 16px; font-size: 64px; opacity: 0.3; }
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px; margin-bottom: 16px; }
+  .cat-grid-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: white; border-radius: 12px; padding: 12px 4px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: none; }
+  .cat-grid-item .emoji { font-size: 24px; }
+  .cat-grid-item span { font-size: 11px; color: #666; }
+  .scroll-x { display: flex; gap: 10px; overflow-x: auto; padding: 0 16px; scrollbar-width: none; margin-bottom: 16px; }
+  .scroll-x::-webkit-scrollbar { display: none; }
+  .coupon-card { flex-shrink: 0; width: 220px; border-radius: 12px; overflow: hidden; display: flex; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .coupon-left { background: linear-gradient(135deg, #ff9651, #ff7a2e); padding: 12px 14px; color: white; text-align: center; min-width: 72px; }
+  .coupon-left .amount { font-size: 22px; font-weight: 700; line-height: 1; }
+  .coupon-left .unit { font-size: 10px; opacity: 0.8; }
+  .coupon-left .limit { font-size: 9px; opacity: 0.7; margin-top: 4px; }
+  .coupon-right { background: white; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .coupon-right .name { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+  .coupon-right .action { font-size: 10px; color: #ff7a2e; margin-top: 4px; }
+  .scroll-product { flex-shrink: 0; width: 150px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.06); cursor: pointer; }
+  .scroll-product .img-area { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .scroll-product .info { padding: 8px 10px; }
+  .scroll-product .info h4 { font-size: 13px; font-weight: 500; }
+  .scroll-product .info .p { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .section-title { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 10px; margin-top: 16px; }
+  .section-title h3 { font-size: 16px; font-weight: 600; }
+  .section-title a { font-size: 12px; color: #999; text-decoration: none; }
+  .featured-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 16px 16px; scrollbar-width: none; }
+  .featured-scroll::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar"><span>9:41</span><span>🔋 100%</span></div>
+
+  <!-- HOME PAGE -->
+  <div style="background:#f8f5f0;">
+    <div class="home-header">
+      <div class="home-header-top"><h1>古茗茶饮</h1><div class="store-tag">📍 武林广场店 ›</div></div>
+      <div class="search-bar">🔍 搜索饮品</div>
+    </div>
+    <div class="order-type"><button class="active">自取</button><button>外卖</button></div>
+    <div class="banner">
+      <div class="banner-text"><h2>夏日限定新品</h2><p>清新果茶系列 焕新上市</p></div>
+      <div class="banner-emoji">🧋</div>
+      <div class="banner-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+    <div class="cat-grid">
+      <button class="cat-grid-item"><span class="emoji">🔥</span><span>当季限定</span></button>
+      <button class="cat-grid-item"><span class="emoji">👑</span><span>超人气</span></button>
+      <button class="cat-grid-item"><span class="emoji">🧋</span><span>奶茶</span></button>
+      <button class="cat-grid-item"><span class="emoji">🍹</span><span>果茶</span></button>
+    </div>
+    <div class="section-title"><h3>优惠券</h3><a href="#">更多 ›</a></div>
+    <div class="scroll-x">
+      <div class="coupon-card"><div class="coupon-left"><div class="unit">¥</div><div class="amount">5</div><div class="limit">满20可用</div></div><div class="coupon-right"><div class="name">新人满减券</div><div class="action">点击领取 →</div></div></div>
+      <div class="coupon-card"><div class="coupon-left"><div class="unit">¥</div><div class="amount">8</div><div class="limit">满30可用</div></div><div class="coupon-right"><div class="name">新人满减券</div><div class="action">点击领取 →</div></div></div>
+      <div class="coupon-card" style="opacity:0.7;"><div class="coupon-left" style="background:linear-gradient(135deg,#ddd,#bbb);"><div class="unit">折</div><div class="amount">8</div><div class="limit">全场</div></div><div class="coupon-right"><div class="name">全场8折券</div><div class="action">已领完</div></div></div>
+    </div>
+    <div class="section-title"><h3>推荐饮品</h3><a href="#">查看全部 ›</a></div>
+    <div class="featured-scroll">
+      <div class="scroll-product"><div class="img-area" style="background:linear-gradient(135deg,#fce4d6,#f8d5c0);">🧋</div><div class="info"><h4>古茗奶茶</h4><div class="p"><span class="price">¥12 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+      <div class="scroll-product"><div class="img-area" style="background:linear-gradient(135deg,#d4e8d0,#c0ddbb);">🥭</div><div class="info"><h4>杨枝甘露</h4><div class="p"><span class="price">¥18 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+      <div class="scroll-product"><div class="img-area" style="background:linear-gradient(135deg,#f8e0d0,#f0d0b8);">👑</div><div class="info"><h4>芋泥啵啵</h4><div class="p"><span class="price">¥16 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+      <div class="scroll-product"><div class="img-area" style="background:linear-gradient(135deg,#fce4d6,#f8d5c0);">🧋</div><div class="info"><h4>黑糖珍珠</h4><div class="p"><span class="price">¥15 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+    </div>
+  </div>
+
+  <!-- ORDER PAGE -->
+  <div style="border-top:6px solid #f0ebe3;">
+    <div class="store-header">
+      <div class="store-left"><div class="store-icon">🏪</div><div class="store-info"><h2>古茗(武林广场店)</h2><div class="meta">距您157m · 前方8杯/5单制作中</div></div></div>
+      <div class="store-right">自取 ▾</div>
+    </div>
+    <div class="order-type" style="margin-top:8px;"><button class="active">自取</button><button>外卖配送</button></div>
+    <div class="content">
+      <div class="sidebar">
+        <div class="sidebar-item active"><span class="emoji">🔥</span>当季限定</div>
+        <div class="sidebar-item"><span class="emoji">👑</span>超人气</div>
+        <div class="sidebar-item"><span class="emoji">🧋</span>招牌必喝</div>
+        <div class="sidebar-item"><span class="emoji">🧋</span>奶茶</div>
+        <div class="sidebar-item"><span class="emoji">🍹</span>果茶</div>
+        <div class="sidebar-item"><span class="emoji">☕</span>咖啡</div>
+      </div>
+      <div class="product-list">
+        <div class="section-label"><h3>当季限定</h3></div>
+        <div class="product-card"><div class="product-img" style="background:linear-gradient(135deg,#fce4d6,#f8d5c0);">🥭</div><div class="product-info"><h3>杨枝甘露</h3><div class="desc">芒果+西柚+椰奶的经典组合</div><div class="sales">月售 2580</div><div class="product-bottom"><span class="price">¥18 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+        <div class="product-card"><div class="product-img" style="background:linear-gradient(135deg,#d4e8d0,#c0ddbb);">🥭</div><div class="product-info"><h3>芒芒甘露</h3><div class="desc">新鲜芒果搭配椰浆，浓郁香甜</div><div class="sales">月售 2200</div><div class="product-bottom"><span class="price">¥18 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+        <div class="product-card"><div class="product-img" style="background:linear-gradient(135deg,#e8d0f8,#dcc0f0);">🍇</div><div class="product-info"><h3>多肉葡萄</h3><div class="desc">整颗葡萄手剥，果肉满溢</div><div class="sales">月售 3100</div><div class="product-bottom"><span class="price">¥19 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+        <div class="product-card"><div class="product-img" style="background:linear-gradient(135deg,#fce4c0,#f8d8a0);">🍊</div><div class="product-info"><h3>满杯橙意</h3><div class="desc">满满一杯鲜橙，维C满满</div><div class="sales">月售 1800</div><div class="product-bottom"><span class="price">¥16 <small>起</small></span><button class="add-btn">+</button></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item" style="color:#ff7a2e;"><span class="icon">🏠</span>首页<div style="position:absolute;top:0;width:20px;height:2px;background:#ff7a2e;border-radius:0 0 2px 2px;"></div></button>
+    <button class="tab-item"><span class="icon">📋</span>点单<span class="badge">3</span></button>
+    <button class="tab-item"><span class="icon">📦</span>订单</button>
+    <button class="tab-item"><span class="icon">👤</span>我的</button>
+  </div>
+</div>
+</body>
+</html>
