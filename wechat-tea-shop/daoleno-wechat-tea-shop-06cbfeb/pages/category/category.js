@@ -4,22 +4,24 @@ const TOOLS = require('../../utils/tools.js') // TOOLS.showTabBarBadge();
 
 Page({
   /**
-   * 椤甸潰鐨勫垵濮嬫暟鎹?
+   * 页面的初始数据
    */
   data: {
     categories: [],
-    categorySelected: { name: '', id: '' },
+    categorySelected: {
+      name: '',
+      id: ''
+    },
     currentGoods: [],
     onLoadStatus: true,
     scrolltop: 0,
+
     skuCurGoods: undefined,
     loginPhone: '',
-    loginPassword: '',,
-    loginPhone: '',
-    loginPassword: ''
+    loginPassword: '',
   },
   /**
-   * 鐢熷懡鍛ㄦ湡鍑芥暟--鐩戝惉椤甸潰鍔犺浇
+   * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
     wx.showShareMenu({
@@ -29,7 +31,12 @@ Page({
   },
   async categories() {
     wx.showLoading({
-      title: '加载中...'';
+      title: '加载中',
+    })
+    const res = await WXAPI.goodsCategory()
+    wx.hideLoading()
+    let categories = [];
+    let categoryName = '';
     let categoryId = '';
     if (res.code == 0) {
       if (this.data.categorySelected.id) {
@@ -59,7 +66,38 @@ Page({
   },
   async getGoodsList() {
     wx.showLoading({
-      title: '加载中...'';
+      title: '加载中',
+    })
+    const res = await WXAPI.goods({
+      categoryId: this.data.categorySelected.id,
+      page: 1,
+      pageSize: 100000
+    })
+    wx.hideLoading()
+    if (res.code == 700) {
+      this.setData({
+        currentGoods: null
+      });
+      return
+    }
+    this.setData({
+      currentGoods: res.data
+    });
+  },
+  toDetailsTap: function(e) {
+    wx.navigateTo({
+      url: "/pages/goods-details/index?id=" + e.currentTarget.dataset.id
+    })
+  },
+  onCategoryClick: function(e) {
+    var that = this;
+    var id = e.target.dataset.id;
+    if (id === that.data.categorySelected.id) {
+      that.setData({
+        scrolltop: 0,
+      })
+    } else {
+      var categoryName = '';
       for (var i = 0; i < that.data.categories.length; i++) {
         let item = that.data.categories[i];
         if (item.id == id) {
@@ -102,7 +140,7 @@ Page({
         this.setData({
           wxlogin: isLogined
         })
-        TOOLS.showTabBarBadge() // 鑾峰彇璐墿杞︽暟鎹紝鏄剧ずTabBarBadge
+        TOOLS.showTabBarBadge() // 获取购物车数据，显示TabBarBadge
       }
     })
     const _categoryId = wx.getStorageSync('_categoryId')
@@ -123,7 +161,7 @@ Page({
     }
     if (curGood.stores <= 0) {
       wx.showToast({
-        title: '宸插敭缃剘',
+        title: '已售罄~',
         icon: 'none'
       })
       return
@@ -140,7 +178,7 @@ Page({
         wxlogin: isLogined
       })
       if (isLogined) {
-        // 澶勭悊鍔犲叆璐墿杞︾殑涓氬姟閫昏緫
+        // 处理加入购物车的业务逻辑
         this.addShopCarDone(options)
       }
     })
@@ -148,7 +186,7 @@ Page({
   async addShopCarDone(options){
     const res = await WXAPI.shippingCarInfoAddItem(wx.getStorageSync('token'), options.goodsId, options.buyNumber, options.sku)
     if (res.code == 30002) {
-      // 闇€瑕侀€夋嫨瑙勬牸灏哄
+      // 需要选择规格尺寸
       const skuCurGoodsRes = await WXAPI.goodsDetail(options.goodsId)
       if (skuCurGoodsRes.code != 0) {
         wx.showToast({
@@ -173,14 +211,14 @@ Page({
       return
     }
     wx.showToast({
-      title: '鍔犲叆鎴愬姛',
+      title: '加入成功',
       icon: 'success'
     })
     this.setData({
       skuCurGoods: null
     })
     wx.showTabBar()
-    TOOLS.showTabBarBadge() // 鑾峰彇璐墿杞︽暟鎹紝鏄剧ずTabBarBadge
+    TOOLS.showTabBarBadge() // 获取购物车数据，显示TabBarBadge
   },
   storesJia(){
     const skuCurGoods = this.data.skuCurGoods
@@ -209,7 +247,7 @@ Page({
   skuSelect(e){
     const pid = e.currentTarget.dataset.pid
     const id = e.currentTarget.dataset.id
-    // 澶勭悊閫変腑
+    // 处理选中
     const skuCurGoods = this.data.skuCurGoods
     const property = skuCurGoods.properties.find(ele => {return ele.id == pid})
     property.childsCurGoods.forEach(ele => {
@@ -225,7 +263,7 @@ Page({
   },
   addCarSku(){
     const skuCurGoods = this.data.skuCurGoods
-    const propertySize = skuCurGoods.properties.length // 鏈夊嚑缁凷KU
+    const propertySize = skuCurGoods.properties.length // 有几组SKU
     const sku = []
     skuCurGoods.properties.forEach(p => {
       const o = p.childsCurGoods.find(ele => {return ele.active})
@@ -239,7 +277,7 @@ Page({
     })
     if (sku.length != propertySize) {
       wx.showToast({
-        title: '璇烽€夋嫨瑙勬牸',
+        title: '请选择规格',
         icon: 'none'
       })
       return
@@ -251,34 +289,50 @@ Page({
     }
     this.addShopCarDone(options)
   },
-
-  ,
   onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
   onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
   async processPhoneLogin() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
-    if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    wx.showLoading({ title: '登录中...' })
-    const res = await WXAPI.login(phone, pwd)
-    wx.hideLoading()
+    var phone = this.data.loginPhone;
+    var pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' });
+      return;
+    }
+    if (!pwd) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u5BC6\u7801', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '\u767B\u5F55\u4E2D...' });
+    var res = await WXAPI.login(phone, pwd);
+    wx.hideLoading();
     if (res.code === 0) {
-      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
-      this.onShow()
-      wx.showToast({ title: '登录成功', icon: 'success' })
-    } else { wx.showToast({ title: res.message || '登录失败', icon: 'none' }) }
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' });
+      this.onShow();
+      wx.showToast({ title: '\u767B\u5F55\u6210\u529F', icon: 'success' });
+    } else {
+      wx.showToast({ title: res.message || '\u767B\u5F55\u5931\u8D25', icon: 'none' });
+    }
   },
   async processRegister() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
-    if (!pwd || pwd.length < 4) { wx.showToast({ title: '密码至少4位', icon: 'none' }); return }
-    wx.showLoading({ title: '注册中...' })
-    const res = await WXAPI.register(phone, pwd, '茶友')
-    wx.hideLoading()
+    var phone = this.data.loginPhone;
+    var pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' });
+      return;
+    }
+    if (!pwd || pwd.length < 4) {
+      wx.showToast({ title: '\u5BC6\u7801\u81F3\u5C114\u4F4D', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '\u6CE8\u518C\u4E2D...' });
+    var res = await WXAPI.register(phone, pwd, '\u8336\u53CB');
+    wx.hideLoading();
     if (res.code === 0) {
-      this.setData({ wxlogin: true })
-      this.onShow()
-      wx.showToast({ title: '注册成功', icon: 'success' })
-    } else { wx.showToast({ title: res.message || '注册失败', icon: 'none' }) }
+      this.setData({ wxlogin: true });
+      this.onShow();
+      wx.showToast({ title: '\u6CE8\u518C\u6210\u529F', icon: 'success' });
+    } else {
+      wx.showToast({ title: res.message || '\u6CE8\u518C\u5931\u8D25', icon: 'none' });
+    }
   }
 })

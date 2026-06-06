@@ -12,10 +12,12 @@ Page({
     allSelect: true,
     noSelect: false,
 
-    delBtnWidth: 120, loginPhone: '', loginPassword: '', loginPhone: '', loginPassword: '', //鍒犻櫎鎸夐挳瀹藉害鍗曚綅锛坮px锛?
+    delBtnWidth: 120,
+    loginPhone: '',
+    loginPassword: ''
   },
 
-  //鑾峰彇鍏冪礌鑷€傚簲鍚庣殑瀹為檯瀹藉害
+  //获取元素自适应后的实际宽度
   getEleWidth: function(w) {
     var real = 0;
     try {
@@ -85,9 +87,9 @@ Page({
       var disX = this.data.startX - moveX;
       var delBtnWidth = this.data.delBtnWidth;
       var left = "";
-      if (disX == 0 || disX < 0) { //濡傛灉绉诲姩璺濈灏忎簬绛変簬0锛宑ontainer浣嶇疆涓嶅彉
+      if (disX == 0 || disX < 0) { //如果移动距离小于等于0，container位置不变
         left = "margin-left:0px";
-      } else if (disX > 0) { //绉诲姩璺濈澶т簬0锛宑ontainer left鍊肩瓑浜庢墜鎸囩Щ鍔ㄨ窛绂?
+      } else if (disX > 0) { //移动距离大于0，container left值等于手指移动距离
         left = "margin-left:-" + disX + "px";
         if (disX >= delBtnWidth) {
           left = "left:-" + delBtnWidth + "px";
@@ -106,7 +108,7 @@ Page({
       var endX = e.changedTouches[0].clientX;
       var disX = this.data.startX - endX;
       var delBtnWidth = this.data.delBtnWidth;
-      //濡傛灉璺濈灏忎簬鍒犻櫎鎸夐挳鐨?/2锛屼笉鏄剧ず鍒犻櫎鎸夐挳
+      //如果距离小于删除按钮的1/2，不显示删除按钮
       var left = disX > delBtnWidth / 2 ? "margin-left:-" + delBtnWidth + "px" : "margin-left:0px";
       this.data.shippingCarInfo.items[index].left = left
       this.setData({
@@ -144,9 +146,9 @@ Page({
     const item = this.data.shippingCarInfo.items[index]
     const number = item.number-1
     if (number <= 0) {
-      // 寮瑰嚭鍒犻櫎纭
+      // 弹出删除确认
       wx.showModal({
-        content: '纭畾瑕佸垹闄よ鍟嗗搧鍚楋紵',
+        content: '确定要删除该商品吗？',
         success: (res) => {
           if (res.confirm) {
             this.delItemDone(item.key)
@@ -167,7 +169,7 @@ Page({
   processLogin(e) {
     if (!e.detail.userInfo) {
       wx.showToast({
-        title: '宸插彇娑?,
+        title: '已取消',
         icon: 'none',
       })
       return;
@@ -184,64 +186,50 @@ Page({
   },
 
 
-
-  ,
   onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
   onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
   async processPhoneLogin() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: 'Enter phone', icon: 'none' }); return }
-    if (!pwd) { wx.showToast({ title: 'Enter password', icon: 'none' }); return }
-    wx.showLoading({ title: 'Login...' })
-    const res = await WXAPI.login(phone, pwd)
-    wx.hideLoading()
+    var phone = this.data.loginPhone;
+    var pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' });
+      return;
+    }
+    if (!pwd) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u5BC6\u7801', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '\u767B\u5F55\u4E2D...' });
+    var res = await WXAPI.login(phone, pwd);
+    wx.hideLoading();
     if (res.code === 0) {
-      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
-      this.onShow()
-      wx.showToast({ title: 'OK', icon: 'success' })
-    } else { wx.showToast({ title: res.message || 'Failed', icon: 'none' }) }
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' });
+      this.onShow();
+      wx.showToast({ title: '\u767B\u5F55\u6210\u529F', icon: 'success' });
+    } else {
+      wx.showToast({ title: res.message || '\u767B\u5F55\u5931\u8D25', icon: 'none' });
+    }
   },
   async processRegister() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: 'Enter phone', icon: 'none' }); return }
-    if (!pwd || pwd.length < 4) { wx.showToast({ title: 'Min 4 chars', icon: 'none' }); return }
-    wx.showLoading({ title: 'Register...' })
-    const res = await WXAPI.register(phone, pwd, 'Tea Fan')
-    wx.hideLoading()
+    var phone = this.data.loginPhone;
+    var pwd = this.data.loginPassword;
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: '\u8BF7\u8F93\u5165\u624B\u673A\u53F7', icon: 'none' });
+      return;
+    }
+    if (!pwd || pwd.length < 4) {
+      wx.showToast({ title: '\u5BC6\u7801\u81F3\u5C114\u4F4D', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '\u6CE8\u518C\u4E2D...' });
+    var res = await WXAPI.register(phone, pwd, '\u8336\u53CB');
+    wx.hideLoading();
     if (res.code === 0) {
-      this.setData({ wxlogin: true })
-      this.onShow()
-      wx.showToast({ title: 'OK', icon: 'success' })
-    } else { wx.showToast({ title: res.message || 'Failed', icon: 'none' }) }
-  }
-
-  ,
-  onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
-  onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
-  async processPhoneLogin() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
-    if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    wx.showLoading({ title: '登录中...' })
-    const res = await WXAPI.login(phone, pwd)
-    wx.hideLoading()
-    if (res.code === 0) {
-      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
-      this.onShow()
-      wx.showToast({ title: '登录成功', icon: 'success' })
-    } else { wx.showToast({ title: res.message || '登录失败', icon: 'none' }) }
-  },
-  async processRegister() {
-    const phone = this.data.loginPhone, pwd = this.data.loginPassword
-    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
-    if (!pwd || pwd.length < 4) { wx.showToast({ title: '密码至少4位', icon: 'none' }); return }
-    wx.showLoading({ title: '注册中...' })
-    const res = await WXAPI.register(phone, pwd, '茶友')
-    wx.hideLoading()
-    if (res.code === 0) {
-      this.setData({ wxlogin: true })
-      this.onShow()
-      wx.showToast({ title: '注册成功', icon: 'success' })
-    } else { wx.showToast({ title: res.message || '注册失败', icon: 'none' }) }
+      this.setData({ wxlogin: true });
+      this.onShow();
+      wx.showToast({ title: '\u6CE8\u518C\u6210\u529F', icon: 'success' });
+    } else {
+      wx.showToast({ title: res.message || '\u6CE8\u518C\u5931\u8D25', icon: 'none' });
+    }
   }
 })
