@@ -17,6 +17,12 @@ public class CouponController {
 
     private final CouponService couponService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAllCoupons() {
+        List<Map<String, Object>> coupons = couponService.getAllAvailableCoupons();
+        return ResponseEntity.ok(ApiResponse.success(coupons));
+    }
+
     @GetMapping("/available")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAvailable() {
         List<Map<String, Object>> coupons = couponService.getAllAvailableCoupons();

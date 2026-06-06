@@ -80,12 +80,12 @@ function goods(params) {
 }
 function goodsDetail(id) { return request('/products/' + id).then(function(res) { if (res.code === 0) res.data = transformProductDetail(res.data); return res; }); }
 function goodsPrice(id) { return request('/products/' + id).then(function(res) { if (res.code === 0) return { code: 0, data: { minPrice: res.data.base_price } }; return res; }); }
-function goodsReputation() { return { code: 0, data: [] }; }
-function goodsDynamic() { return { code: 700 }; }
-function goodsFavList() { return { code: 0, data: [] }; }
-function goodsFavPut() { return { code: 0 }; }
-function goodsFavDelete() { return { code: 0 }; }
-function goodsFavCheck() { return { code: 0, data: { status: 0 } }; }
+function goodsReputation() { return Promise.resolve({ code: 0, data: [] }); }
+function goodsDynamic() { return Promise.resolve({ code: 700 }); }
+function goodsFavList() { return Promise.resolve({ code: 0, data: [] }); }
+function goodsFavPut() { return Promise.resolve({ code: 0 }); }
+function goodsFavDelete() { return Promise.resolve({ code: 0 }); }
+function goodsFavCheck() { return Promise.resolve({ code: 0, data: { status: 0 } }); }
 function shippingCarInfo(token) {
   return request('/cart').then(function(res) {
     if (res.code === 0) {
@@ -121,10 +121,10 @@ function orderList(params) { var url = '/orders'; if (params && params.status !=
 function orderDetail(id) { return request('/orders/' + id); }
 function orderClose(id) { return request('/orders/' + id + '/cancel', 'PUT'); }
 function orderPay(token, orderId) { return request('/orders/' + orderId + '/pay', 'PUT'); }
-function orderDelivery() { return { code: 700 }; }
+function orderDelivery() { return Promise.resolve({ code: 700 }); }
 function orderStatistics() { return request('/orders'); }
-function orderReputation() { return { code: 0 }; }
-function orderHX() { return { code: 700 }; }
+function orderReputation() { return Promise.resolve({ code: 0 }); }
+function orderHX() { return Promise.resolve({ code: 700 }); }
 function queryAddress() { return request('/user/addresses'); }
 function defaultAddress() { return request('/user/addresses').then(function(res) { if (res.code === 0 && res.data && res.data.length > 0) return { code: 0, data: res.data[0] }; return { code: 700 }; }); }
 function addAddress(data) { return request('/user/addresses', 'POST', data); }
@@ -133,45 +133,45 @@ function deleteAddress(id) { return request('/user/addresses/' + id, 'DELETE'); 
 function addressDetail() { return request('/user/addresses'); }
 function province() { return { code: 0, data: [{ id: 1, name: '\u6D59\u6C5F\u7701' }, { id: 2, name: '\u6C5F\u82CF\u7701' }, { id: 3, name: '\u4E0A\u6D77\u5E02' }] }; }
 function nextRegion(pid) { var m = { 1: [{ id: 11, name: '\u676D\u5DDE\u5E02' }, { id: 12, name: '\u5B81\u6CE2\u5E02' }], 2: [{ id: 21, name: '\u5357\u4EAC\u5E02' }, { id: 22, name: '\u82CF\u5DDE\u5E02' }], 3: [{ id: 31, name: '\u4E0A\u6D77\u5E02' }] }; return { code: 0, data: m[pid] || [] }; }
-function scoreSign() { return { code: 0, data: { score: 5 } }; }
-function scoreSignLogs() { return { code: 0, data: { dataList: [] } }; }
-function scoreLogs() { return { code: 0, data: { dataList: [] } }; }
-function scoreExchange() { return { code: 700 }; }
-function exchangeScoreToGrowth() { return { code: 700 }; }
-function scoreDeductionRules() { return { code: 0, data: [] }; }
-function growthLogs() { return { code: 0, data: { dataList: [] } }; }
-function depositList() { return { code: 0, data: [] }; }
-function payDeposit() { return { code: 700 }; }
-function payBill() { return { code: 700 }; }
-function payBillDiscounts() { return { code: 0, data: [] }; }
-function rechargeSendRules() { return { code: 700 }; }
-function withDrawApply() { return { code: 700 }; }
-function withDrawLogs() { return { code: 0, data: { dataList: [] } }; }
-function cashLogsV2() { return { code: 0, data: { dataList: [] } }; }
-function fxApply() { return { code: 700 }; }
-function fxApplyProgress() { return { code: 700 }; }
-function fxMembers() { return { code: 0, data: { dataList: [] } }; }
-function fxCommisionLog() { return { code: 0, data: { dataList: [] } }; }
-function kanjiaSet() { return { code: 700 }; }
-function kanjiaDetail() { return { code: 700 }; }
-function kanjiaJoin() { return { code: 700 }; }
-function kanjiaHelp() { return { code: 700 }; }
-function kanjiaHelpDetail() { return { code: 700 }; }
-function pingtuanSet() { return { code: 700 }; }
-function pingtuanList() { return { code: 0, data: [] }; }
-function pingtuanOpen() { return { code: 700 }; }
-function noticeList() { return { code: 0, data: { dataList: [] } }; }
-function noticeDetail() { return { code: 700 }; }
-function refundApply() { return { code: 700 }; }
-function refundApplyCancel() { return { code: 700 }; }
-function refundApplyDetail() { return { code: 700 }; }
-function invoiceList() { return { code: 0, data: { dataList: [] } }; }
-function invoiceApply() { return { code: 700 }; }
-function wuliuInfo() { return { code: 700 }; }
-function wxaQrcode() { return { code: 700 }; }
-function videoDetail() { return { code: 700 }; }
-function wxaMpLiveRooms() { return { code: 0, data: [] }; }
-function uploadFile() { return { code: 700 }; }
+function scoreSign() { return Promise.resolve({ code: 0, data: { score: 5 } }); }
+function scoreSignLogs() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function scoreLogs() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function scoreExchange() { return Promise.resolve({ code: 700 }); }
+function exchangeScoreToGrowth() { return Promise.resolve({ code: 700 }); }
+function scoreDeductionRules() { return Promise.resolve({ code: 0, data: [] }); }
+function growthLogs() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function depositList() { return Promise.resolve({ code: 0, data: [] }); }
+function payDeposit() { return Promise.resolve({ code: 700 }); }
+function payBill() { return Promise.resolve({ code: 700 }); }
+function payBillDiscounts() { return Promise.resolve({ code: 0, data: [] }); }
+function rechargeSendRules() { return Promise.resolve({ code: 700 }); }
+function withDrawApply() { return Promise.resolve({ code: 700 }); }
+function withDrawLogs() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function cashLogsV2() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function fxApply() { return Promise.resolve({ code: 700 }); }
+function fxApplyProgress() { return Promise.resolve({ code: 700 }); }
+function fxMembers() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function fxCommisionLog() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function kanjiaSet() { return Promise.resolve({ code: 700 }); }
+function kanjiaDetail() { return Promise.resolve({ code: 700 }); }
+function kanjiaJoin() { return Promise.resolve({ code: 700 }); }
+function kanjiaHelp() { return Promise.resolve({ code: 700 }); }
+function kanjiaHelpDetail() { return Promise.resolve({ code: 700 }); }
+function pingtuanSet() { return Promise.resolve({ code: 700 }); }
+function pingtuanList() { return Promise.resolve({ code: 0, data: [] }); }
+function pingtuanOpen() { return Promise.resolve({ code: 700 }); }
+function noticeList() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function noticeDetail() { return Promise.resolve({ code: 700 }); }
+function refundApply() { return Promise.resolve({ code: 700 }); }
+function refundApplyCancel() { return Promise.resolve({ code: 700 }); }
+function refundApplyDetail() { return Promise.resolve({ code: 700 }); }
+function invoiceList() { return Promise.resolve({ code: 0, data: { dataList: [] } }); }
+function invoiceApply() { return Promise.resolve({ code: 700 }); }
+function wuliuInfo() { return Promise.resolve({ code: 700 }); }
+function wxaQrcode() { return Promise.resolve({ code: 700 }); }
+function videoDetail() { return Promise.resolve({ code: 700 }); }
+function wxaMpLiveRooms() { return Promise.resolve({ code: 0, data: [] }); }
+function uploadFile() { return Promise.resolve({ code: 700 }); }
 function login_wx(code) { return request('/auth/wx-mini-login', 'POST', { code: code }); }
 function login_wx_with_info(code, nickname, avatar) { return request('/auth/wx-mini-login', 'POST', { code: code, nickname: nickname, avatar: avatar }); }
 function register_complex(params) { return request('/auth/wx-mini-register', 'POST', params); }
