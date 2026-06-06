@@ -1,51 +1,44 @@
 import React from 'react';
-import type { SpecOption } from '../types';
+import type { SpecGroup } from '../types';
 
 interface SpecSelectorProps {
-  title: string;
-  options: SpecOption[];
-  selectedId: number | null;
-  onSelect: (option: SpecOption) => void;
+  groups: SpecGroup[];
+  selected: Record<string, string>;
+  onChange: (group: string, option: string) => void;
 }
 
-const SpecSelector: React.FC<SpecSelectorProps> = ({
-  title,
-  options,
-  selectedId,
-  onSelect,
-}) => {
+const SpecSelector: React.FC<SpecSelectorProps> = ({ groups, selected, onChange }) => {
   return (
-    <div className="mb-4">
-      <h3 className="text-sm font-medium text-guming-text mb-3">{title}</h3>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => {
-          const isSelected = selectedId === option.id;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              className={`inline-flex items-center px-4 py-2 rounded-full text-sm transition-all ${
-                isSelected
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-gray-50 text-guming-text'
-              }`}
-              onClick={() => onSelect(option)}
-            >
-              {isSelected && (
-                <svg className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-              {option.name}
-              {option.extra_price > 0 && (
-                <span className={isSelected ? 'text-white/80 ml-1' : 'text-guming-sub ml-1'}>
-                  +¥{option.extra_price}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+    <div className="flex flex-col gap-4">
+      {groups.map((group) => (
+        <div key={group.id}>
+          <div className="text-[13px] font-semibold text-gray-800 mb-2">
+            {group.group_name}
+            {group.is_required === 1 && <span className="text-[11px] text-red-400 ml-1">(必选)</span>}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {group.options.map((opt) => {
+              const isSelected = selected[group.group_name] === opt.name;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => onChange(group.group_name, opt.name)}
+                  className="px-3 py-1.5 rounded-full text-[12px] transition-colors"
+                  style={{
+                    background: isSelected ? '#e8f5e9' : '#f5f5f5',
+                    color: isSelected ? '#4a9e4d' : '#666',
+                    border: isSelected ? '1px solid #4a9e4d' : '1px solid transparent',
+                    fontWeight: isSelected ? 600 : 400,
+                  }}
+                >
+                  {opt.name}
+                  {opt.extra_price > 0 && <span className="ml-1 text-[10px]">+¥{opt.extra_price.toFixed(2)}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

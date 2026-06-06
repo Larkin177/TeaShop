@@ -13,26 +13,31 @@ const Header: React.FC<HeaderProps> = ({ title, showBack = true, right, transpar
   const navigate = useNavigate();
 
   return (
-    <div
-      className={`sticky top-0 z-30 flex items-center h-12 px-3 ${
-        transparent ? 'bg-transparent' : 'bg-white/95 backdrop-blur-sm'
-      }`}
+    <header
+      className="flex items-center h-11 px-3 shrink-0 relative z-10"
+      style={transparent ? {} : { background: 'linear-gradient(135deg, #4a9e4d, #3d8a40)' }}
     >
       {showBack ? (
         <button
           onClick={() => navigate(-1)}
-          className="w-8 h-8 flex items-center justify-center rounded-full active:bg-gray-100 transition-colors -ml-1"
+          className="w-8 h-8 flex items-center justify-center"
+          style={{ color: transparent ? '#333' : '#fff' }}
         >
-          <Back size={20} />
+          <Back size={20} color={transparent ? '#333' : '#fff'} />
         </button>
       ) : (
         <div className="w-8" />
       )}
-      <h1 className="flex-1 text-center text-base font-medium text-guming-text text-ellipsis-1 px-2">
+      <h1
+        className="flex-1 text-center text-[15px] font-semibold truncate"
+        style={{ color: transparent ? '#333' : '#fff' }}
+      >
         {title}
       </h1>
-      {right ? <div className="w-8 flex items-center justify-center">{right}</div> : <div className="w-8" />}
-    </div>
+      <div className="w-8 h-8 flex items-center justify-center">
+        {right || null}
+      </div>
+    </header>
   );
 };
 

@@ -1,7 +1,7 @@
-﻿module.exports = {
+module.exports = {
   version: "0.0.1",
   apiBaseUrl: "http://localhost:3001/api",
-  subDomain: "miuoo",
+  subDomain: "teashop",
   goodsDetailSkuShowType: 0,
   shopMod: 0,
 }

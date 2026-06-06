@@ -1,122 +1,60 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
-  layout?: 'horizontal' | 'vertical';
+  onAdd?: (e: React.MouseEvent) => void;
+  onClick?: () => void;
 }
 
-const categoryGradients: Record<string, string> = {
-  '当季限定': 'from-orange-200 to-red-200',
-  '超人气': 'from-yellow-200 to-orange-200',
-  '招牌必喝': 'from-amber-200 to-yellow-200',
-  '奶茶': 'from-orange-100 to-amber-200',
-  '果茶': 'from-green-200 to-teal-200',
-  '咖啡': 'from-amber-300 to-yellow-300',
-  '茶拿铁': 'from-emerald-200 to-green-200',
-  '小料': 'from-pink-200 to-purple-200',
+const categoryGradients: Record<string, { bg: string; emoji: string }> = {
+  '当季限定': { bg: 'linear-gradient(135deg, #fce4d6, #f8d5c0)', emoji: '🥭' },
+  '超人气': { bg: 'linear-gradient(135deg, #d4e8d0, #c0ddbb)', emoji: '👑' },
+  '招牌必喝': { bg: 'linear-gradient(135deg, #fce4c0, #f8d8a0)', emoji: '🧋' },
+  '奶茶': { bg: 'linear-gradient(135deg, #fce4d6, #f8d5c0)', emoji: '🧋' },
+  '果茶': { bg: 'linear-gradient(135deg, #e8d0f8, #dcc0f0)', emoji: '🍹' },
+  '咖啡': { bg: 'linear-gradient(135deg, #d4c4b0, #c0b0a0)', emoji: '☕' },
 };
 
-const categoryEmojis: Record<string, string> = {
-  '当季限定': '🔥',
-  '超人气': '👑',
-  '招牌必喝': '🏆',
-  '奶茶': '🧋',
-  '果茶': '🍹',
-  '咖啡': '☕',
-  '茶拿铁': '🍵',
-  '小料': '🥣',
-};
+const defaultGrad = { bg: 'linear-gradient(135deg, #fce4d6, #f8d5c0)', emoji: '🍵' };
 
-export const getProductGradient = (categoryName?: string): string => {
-  if (categoryName && categoryGradients[categoryName]) {
-    return categoryGradients[categoryName];
-  }
-  return 'from-orange-100 to-amber-100';
-};
-
-export const getProductEmoji = (categoryName?: string): string => {
-  if (categoryName && categoryEmojis[categoryName]) {
-    return categoryEmojis[categoryName];
-  }
-  return '🍵';
-};
-
-const ProductCard: React.FC<ProductCardProps> = ({ product, layout = 'horizontal' }) => {
-  const navigate = useNavigate();
-  const gradient = getProductGradient(product.category_name);
-  const emoji = getProductEmoji(product.category_name);
-
-  const handleClick = () => {
-    navigate(`/product/${product.id}`);
-  };
-
-  const handleAddClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/product/${product.id}`);
-  };
-
-  if (layout === 'vertical') {
-    return (
-      <div
-        className="bg-white rounded-xl shadow-card overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
-        onClick={handleClick}
-      >
-        <div className={`h-36 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-          <span className="text-5xl">{emoji}</span>
-        </div>
-        <div className="p-3">
-          <h3 className="text-sm font-medium text-guming-text text-ellipsis-1">{product.name}</h3>
-          <p className="text-xs text-guming-sub mt-1 text-ellipsis-1">{product.description}</p>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-guming-price font-bold text-sm">
-              ¥{product.base_price}
-              <span className="text-[10px] font-normal ml-0.5">起</span>
-            </span>
-            <button
-              onClick={handleAddClick}
-              className="w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center active:bg-brand-600 transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd, onClick }) => {
+  const grad = categoryGradients[product.category_name || ''] || defaultGrad;
 
   return (
     <div
-      className="flex bg-white rounded-xl shadow-card overflow-hidden cursor-pointer active:bg-gray-50/50 transition-colors"
-      onClick={handleClick}
+      className="flex items-center bg-white rounded-xl p-2.5 gap-2.5 cursor-pointer"
+      onClick={onClick}
+      style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
     >
-      <div className={`w-[100px] h-[100px] flex-shrink-0 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-        <span className="text-4xl">{emoji}</span>
+      {/* Image area */}
+      <div
+        className="w-[72px] h-[72px] rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: grad.bg }}
+      >
+        <span className="text-2xl">{grad.emoji}</span>
       </div>
-      <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+      {/* Info */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between h-[72px]">
         <div>
-          <h3 className="text-[15px] font-medium text-guming-text text-ellipsis-1">{product.name}</h3>
-          <p className="text-xs text-guming-sub mt-0.5 text-ellipsis-1">{product.description}</p>
-          <p className="text-[11px] text-guming-sub mt-1">月售 {product.monthly_sales}</p>
+          <div className="text-[14px] font-bold text-gray-800 truncate">{product.name}</div>
+          <div className="text-[11px] text-gray-400 truncate mt-0.5">{product.description}</div>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-guming-price font-bold text-[15px]">
-            ¥{product.base_price}
-            <span className="text-[11px] font-normal ml-0.5">起</span>
-          </span>
-          <button
-            onClick={handleAddClick}
-            className="w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center active:bg-brand-600 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
+          <div className="flex items-baseline gap-1">
+            <span className="text-[12px] font-bold" style={{ color: '#e85c3a' }}>¥</span>
+            <span className="text-[16px] font-bold" style={{ color: '#e85c3a' }}>{product.base_price.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-gray-400">月售{product.monthly_sales}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); onAdd?.(e); }}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-lg"
+              style={{ background: '#ff7a2e', lineHeight: 1, fontSize: 16 }}
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
     </div>

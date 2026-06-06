@@ -2,7 +2,7 @@ const WXAPI = require('apifm-wxapi')
 const app = getApp();
 const CONFIG = require('../../config.js')
 const AUTH = require('../../utils/auth')
-const SelectSizePrefix = "选择："
+const SelectSizePrefix = "閫夋嫨锛?
 import Poster from 'wxa-plugin-canvas/poster/poster'
 
 Page({
@@ -23,13 +23,13 @@ Page({
 
     propertyChildIds: "",
     propertyChildNames: "",
-    canSubmit: false, //  选中规格尺寸时候是否允许加入购物车
-    shopType: "addShopCar", //购物类型，加入购物车或立即购买，默认为加入购物车
+    canSubmit: false, //  閫変腑瑙勬牸灏哄鏃跺€欐槸鍚﹀厑璁稿姞鍏ヨ喘鐗╄溅
+    shopType: "addShopCar", loginPhone: '', loginPassword: '', //璐墿绫诲瀷锛屽姞鍏ヨ喘鐗╄溅鎴栫珛鍗宠喘涔帮紝榛樿涓哄姞鍏ヨ喘鐗╄溅
   },
   async onLoad(e) {
     // e.id = 235853
     if (e && e.scene) {
-      const scene = decodeURIComponent(e.scene) // 处理扫码进商品详情页面的逻辑
+      const scene = decodeURIComponent(e.scene) // 澶勭悊鎵爜杩涘晢鍝佽鎯呴〉闈㈢殑閫昏緫
       if (scene && scene.split(',').length >= 2) {
         e.id = scene.split(',')[0]
         wx.setStorageSync('referrer', scene.split(',')[1])
@@ -90,12 +90,12 @@ Page({
       })
       if (isLogined) {
         if (this.data.faved) {
-          // 取消收藏
+          // 鍙栨秷鏀惰棌
           WXAPI.goodsFavDelete(wx.getStorageSync('token'), '', this.data.goodsId).then(res => {
             this.goodsFavCheck()
           })
         } else {
-          // 加入收藏
+          // 鍔犲叆鏀惰棌
           WXAPI.goodsFavPut(wx.getStorageSync('token'), this.data.goodsId).then(res => {
             this.goodsFavCheck()
           })
@@ -142,7 +142,7 @@ Page({
       if (goodsKanjiaSetRes.code == 0) {
         _data.curGoodsKanjia = goodsKanjiaSetRes.data[0]
         that.data.kjId = _data.curGoodsKanjia.id
-        // 获取当前砍价进度
+        // 鑾峰彇褰撳墠鐮嶄环杩涘害
         if (!that.data.kjJoinUid) {
           that.data.kjJoinUid = wx.getStorageSync('uid')
         }
@@ -159,7 +159,7 @@ Page({
         const pingtuanSetRes = await WXAPI.pingtuanSet(goodsId)
         if (pingtuanSetRes.code == 0) {
           _data.pingtuanSet = pingtuanSetRes.data
-          // 如果是拼团商品， 默认显示拼团价格
+          // 濡傛灉鏄嫾鍥㈠晢鍝侊紝 榛樿鏄剧ず鎷煎洟浠锋牸
           _data.selectSizePrice = goodsDetailRes.data.basicInfo.pingtuanPrice
         }        
       }
@@ -208,7 +208,7 @@ Page({
     
   },
   /**
-   * 规格选择弹出框
+   * 瑙勬牸閫夋嫨寮瑰嚭妗?
    */
   bindGuiGeTap: function() {
     this.setData({
@@ -219,7 +219,7 @@ Page({
     })
   },
   /**
-   * 规格选择弹出框隐藏
+   * 瑙勬牸閫夋嫨寮瑰嚭妗嗛殣钘?
    */
   closePopupTap: function() {
     this.setData({
@@ -245,7 +245,7 @@ Page({
     }
   },
   /**
-   * 选择商品规格
+   * 閫夋嫨鍟嗗搧瑙勬牸
    * @param {Object} e
    */
   async labelItemTap(e) {
@@ -254,14 +254,14 @@ Page({
 
     const property = this.data.goodsDetail.properties[propertyindex]
     const child = property.childsCurGoods[propertychildindex]
-    // 取消该分类下的子栏目所有的选中状态
+    // 鍙栨秷璇ュ垎绫讳笅鐨勫瓙鏍忕洰鎵€鏈夌殑閫変腑鐘舵€?
     property.childsCurGoods.forEach(child => {
       child.active = false
     })
-    // 设置当前选中状态
+    // 璁剧疆褰撳墠閫変腑鐘舵€?
     property.optionValueId = child.id
     child.active = true
-    // 获取所有的选中规格尺寸数据
+    // 鑾峰彇鎵€鏈夌殑閫変腑瑙勬牸灏哄鏁版嵁
     const needSelectNum = this.data.goodsDetail.properties.length
     let curSelectNum = 0;
     let propertyChildIds = "";
@@ -280,7 +280,7 @@ Page({
     if (needSelectNum == curSelectNum) {
       canSubmit = true;
     }
-    // 计算当前价格
+    // 璁＄畻褰撳墠浠锋牸
     if (canSubmit) {
       const res = await WXAPI.goodsPrice(this.data.goodsDetail.basicInfo.id, propertyChildIds)
       if (res.code == 0) {
@@ -315,13 +315,13 @@ Page({
     })
   },
   /**
-   * 加入购物车
+   * 鍔犲叆璐墿杞?
    */
   async addShopCar() {
     if (this.data.goodsDetail.properties && !this.data.canSubmit) {
       if (!this.data.canSubmit) {
         wx.showToast({
-          title: '请选择规格',
+          title: '璇烽€夋嫨瑙勬牸',
           icon: 'none'
         })
       }
@@ -330,7 +330,7 @@ Page({
     }
     if (this.data.buyNumber < 1) {
       wx.showToast({
-        title: '请选择购买数量',
+        title: '璇烽€夋嫨璐拱鏁伴噺',
         icon: 'none'
       })
       return
@@ -364,13 +364,13 @@ Page({
 
     this.closePopupTap();
     wx.showToast({
-      title: '加入购物车',
+      title: '鍔犲叆璐墿杞?,
       icon: 'success'
     })
     this.shippingCartInfo()
   },
   /**
-   * 立即购买
+   * 绔嬪嵆璐拱
    */
   buyNow: function(e) {
     let that = this
@@ -379,30 +379,30 @@ Page({
     if (this.data.goodsDetail.properties && !this.data.canSubmit) {
       if (!this.data.canSubmit) {
         wx.showModal({
-          title: '提示',
-          content: '请选择商品规格！',
+          title: '鎻愮ず',
+          content: '璇烽€夋嫨鍟嗗搧瑙勬牸锛?,
           showCancel: false
         })
       }
       this.bindGuiGeTap();
       wx.showModal({
-        title: '提示',
-        content: '请先选择规格尺寸哦~',
+        title: '鎻愮ず',
+        content: '璇峰厛閫夋嫨瑙勬牸灏哄鍝',
         showCancel: false
       })
       return;
     }
     if (this.data.buyNumber < 1) {
       wx.showModal({
-        title: '提示',
-        content: '购买数量不能为0！',
+        title: '鎻愮ず',
+        content: '璐拱鏁伴噺涓嶈兘涓?锛?,
         showCancel: false
       })
       return;
     }
-    //组建立即购买信息
+    //缁勫缓绔嬪嵆璐拱淇℃伅
     var buyNowInfo = this.buliduBuyNowInfo(shoptype);
-    // 写入本地存储
+    // 鍐欏叆鏈湴瀛樺偍
     wx.setStorage({
       key: "buyNowInfo",
       data: buyNowInfo
@@ -442,18 +442,18 @@ Page({
 
   },
   /**
-   * 组建立即购买信息
+   * 缁勫缓绔嬪嵆璐拱淇℃伅
    */
   buliduBuyNowInfo: function(shoptype) {
     var shopCarMap = {};
     shopCarMap.goodsId = this.data.goodsDetail.basicInfo.id;
     shopCarMap.pic = this.data.goodsDetail.basicInfo.pic;
     shopCarMap.name = this.data.goodsDetail.basicInfo.name;
-    // shopCarMap.label=this.data.goodsDetail.basicInfo.id; 规格尺寸 
+    // shopCarMap.label=this.data.goodsDetail.basicInfo.id; 瑙勬牸灏哄 
     shopCarMap.propertyChildIds = this.data.propertyChildIds;
     shopCarMap.label = this.data.propertyChildNames;
     shopCarMap.price = this.data.selectSizePrice;
-    // if (shoptype == 'toPingtuan') { // 20190714 拼团价格注释掉
+    // if (shoptype == 'toPingtuan') { // 20190714 鎷煎洟浠锋牸娉ㄩ噴鎺?
     //   shopCarMap.price = this.data.goodsDetail.basicInfo.pingtuanPrice;
     // }
     shopCarMap.score = this.data.totalScoreToPay;
@@ -493,14 +493,14 @@ Page({
       title: this.data.goodsDetail.basicInfo.name,
       path: '/pages/goods-details/index?id=' + this.data.goodsDetail.basicInfo.id + '&inviter_id=' + wx.getStorageSync('uid'),
       success: function(res) {
-        // 转发成功
+        // 杞彂鎴愬姛
       },
       fail: function(res) {
-        // 转发失败
+        // 杞彂澶辫触
       }
     }
     if (this.data.kjJoinUid) {
-      _data.title = this.data.curKanjiaprogress.joiner.nick + '邀请您帮TA砍价'
+      _data.title = this.data.curKanjiaprogress.joiner.nick + '閭€璇锋偍甯甌A鐮嶄环'
       _data.path += '&kjJoinUid=' + this.data.kjJoinUid
     }
     return _data
@@ -551,13 +551,13 @@ Page({
       }
     })
   },
-  doneJoinKanjia: function() { // 报名参加砍价活动
+  doneJoinKanjia: function() { // 鎶ュ悕鍙傚姞鐮嶄环娲诲姩
     const _this = this;
     if (!_this.data.curGoodsKanjia) {
       return;
     }
     wx.showLoading({
-      title: '加载中',
+      title: '鍔犺浇涓?,
       mask: true
     })
     WXAPI.kanjiaJoin(wx.getStorageSync('token'), _this.data.curGoodsKanjia.id).then(function(res) {
@@ -612,8 +612,8 @@ Page({
         myHelpDetail: res.data
       });
       wx.showModal({
-        title: '成功',
-        content: '成功帮TA砍掉 ' + res.data.cutPrice + ' 元',
+        title: '鎴愬姛',
+        content: '鎴愬姛甯甌A鐮嶆帀 ' + res.data.cutPrice + ' 鍏?,
         showCancel: false
       })
       _this.getGoodsDetailAndKanjieInfo(_this.data.goodsDetail.basicInfo.id)
@@ -627,7 +627,7 @@ Page({
   processLogin(e) {
     if (!e.detail.userInfo) {
       wx.showToast({
-        title: '已取消',
+        title: '宸插彇娑?,
         icon: 'none',
       })
       return;
@@ -642,8 +642,8 @@ Page({
   previewImage(e){
     const url = e.currentTarget.dataset.url
     wx.previewImage({
-      current: url, // 当前显示图片的http链接
-      urls: [url] // 需要预览的图片http链接列表
+      current: url, // 褰撳墠鏄剧ず鍥剧墖鐨刪ttp閾炬帴
+      urls: [url] // 闇€瑕侀瑙堢殑鍥剧墖http閾炬帴鍒楄〃
     })
   },
   async drawSharePic() {
@@ -699,14 +699,14 @@ Page({
           {
             x: 133,
             y: 133,
-            url: _this.data.goodsDetail.basicInfo.pic, // 商品图片
+            url: _this.data.goodsDetail.basicInfo.pic, // 鍟嗗搧鍥剧墖
             width: 490,
             height: picHeight
           },
           {
             x: 76,
             y: _baseHeight + 199,
-            url: qrcode, // 二维码
+            url: qrcode, // 浜岀淮鐮?
             width: 222,
             height: 222
           }
@@ -725,7 +725,7 @@ Page({
           {
             x: 375,
             y: _baseHeight + 180,
-            text: '￥' + _this.data.goodsDetail.basicInfo.minPrice,
+            text: '锟? + _this.data.goodsDetail.basicInfo.minPrice,
             textAlign: 'center',
             fontSize: 50,
             color: '#e64340'
@@ -733,7 +733,7 @@ Page({
           {
             x: 352,
             y: _baseHeight + 320,
-            text: '长按识别小程序码',
+            text: '闀挎寜璇嗗埆灏忕▼搴忕爜',
             fontSize: 28,
             color: '#999'
           }
@@ -759,9 +759,9 @@ Page({
       filePath: this.data.posterImg,
       success: (res) => {
         wx.showModal({
-          content: '已保存到手机相册',
+          content: '宸蹭繚瀛樺埌鎵嬫満鐩稿唽',
           showCancel: false,
-          confirmText: '知道了',
+          confirmText: '鐭ラ亾浜?,
           confirmColor: '#333'
         })
       },
@@ -779,4 +779,34 @@ Page({
       }
     })
   },
+
+  ,
+  onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
+  onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
+  async processPhoneLogin() {
+    const phone = this.data.loginPhone, pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) { wx.showToast({ title: 'Enter phone', icon: 'none' }); return }
+    if (!pwd) { wx.showToast({ title: 'Enter password', icon: 'none' }); return }
+    wx.showLoading({ title: 'Login...' })
+    const res = await WXAPI.login(phone, pwd)
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
+      this.onShow()
+      wx.showToast({ title: 'OK', icon: 'success' })
+    } else { wx.showToast({ title: res.message || 'Failed', icon: 'none' }) }
+  },
+  async processRegister() {
+    const phone = this.data.loginPhone, pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) { wx.showToast({ title: 'Enter phone', icon: 'none' }); return }
+    if (!pwd || pwd.length < 4) { wx.showToast({ title: 'Min 4 chars', icon: 'none' }); return }
+    wx.showLoading({ title: 'Register...' })
+    const res = await WXAPI.register(phone, pwd, 'Tea Fan')
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true })
+      this.onShow()
+      wx.showToast({ title: 'OK', icon: 'success' })
+    } else { wx.showToast({ title: res.message || 'Failed', icon: 'none' }) }
+  }
 })

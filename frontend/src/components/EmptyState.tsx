@@ -1,23 +1,27 @@
 import React from 'react';
 
 interface EmptyStateProps {
-  emoji?: string;
-  message: string;
-  actionText?: string;
-  onAction?: () => void;
+  icon?: string;
+  text?: string;
+  action?: { label: string; onClick: () => void };
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ emoji = '🍵', message, actionText, onAction }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({
+  icon = '🍵',
+  text = '暂无数据',
+  action,
+}) => {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
-      <span className="text-6xl mb-4">{emoji}</span>
-      <p className="text-guming-sub text-sm mb-4">{message}</p>
-      {actionText && onAction && (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      <span className="text-5xl">{icon}</span>
+      <span className="text-sm text-gray-400">{text}</span>
+      {action && (
         <button
-          onClick={onAction}
-          className="px-6 py-2.5 rounded-full gradient-brand text-white text-sm font-medium shadow-card active:opacity-90 transition-opacity"
+          onClick={action.onClick}
+          className="mt-2 px-5 py-2 rounded-full text-sm text-white"
+          style={{ background: 'linear-gradient(135deg, #ff7a2e, #ff9651)' }}
         >
-          {actionText}
+          {action.label}
         </button>
       )}
     </div>

@@ -5,140 +5,123 @@ const AUTH = require('../../utils/auth')
 const TOOLS = require('../../utils/tools.js')
 
 Page({
-	data: {
+  data: {
     wxlogin: true,
-
-    balance:0.00,
-    freeze:0,
-    score:0,
-    growth:0,
-    score_sign_continuous:0,
-    rechargeOpen: false // 是否开启充值[预存]功能
+    loginPhone: '',
+    loginPassword: '',
+    balance: '0.00',
+    freeze: 0,
+    score: 0,
+    growth: 0,
+    score_sign_continuous: 0,
+    rechargeOpen: false
   },
-	onLoad() {
-	},	
+  onLoad() {},
   onShow() {
     const _this = this
-    const order_hx_uids = wx.getStorageSync('order_hx_uids')
-    this.setData({
-      version: CONFIG.version,
-      order_hx_uids
-    })
+    this.setData({ version: CONFIG.version })
     AUTH.checkHasLogined().then(isLogined => {
-      this.setData({
-        wxlogin: isLogined
-      })
-      if (isLogined) {        
-        _this.getUserApiInfo();
-        _this.getUserAmount();
+      this.setData({ wxlogin: isLogined })
+      if (isLogined) {
+        _this.getUserApiInfo()
+        _this.getUserAmount()
       }
     })
-    // 获取购物车数据，显示TabBarBadge
-    TOOLS.showTabBarBadge();
+    TOOLS.showTabBarBadge()
   },
-  aboutUs : function () {
-    wx.showModal({
-      title: '关于我们',
-      content: '一家奶茶店',
-      showCancel:false
-    })
+  aboutUs() {
+    wx.showModal({ title: 'About Us', content: 'Tea Shop - Your favorite tea drinks', showCancel: false })
   },
-  loginOut(){
+  loginOut() {
     AUTH.loginOut()
-    wx.reLaunch({
-      url: '/pages/my/index'
-    })
+    wx.reLaunch({ url: '/pages/my/index' })
   },
-  bindPhone: function() {
-    var that = this;
-    AUTH.login(this);
+  onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
+  onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
+  async processPhoneLogin() {
+    const phone = this.data.loginPhone
+    const pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: 'Enter valid phone', icon: 'none' })
+      return
+    }
+    if (!pwd) {
+      wx.showToast({ title: 'Enter password', icon: 'none' })
+      return
+    }
+    wx.showLoading({ title: 'Logging in...' })
+    const res = await WXAPI.login(phone, pwd)
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
+      this.onShow()
+      wx.showToast({ title: 'Login success', icon: 'success' })
+    } else {
+      wx.showToast({ title: res.message || 'Login failed', icon: 'none' })
+    }
   },
-  getUserApiInfo: function () {
-    var that = this;
-    WXAPI.userDetail(wx.getStorageSync('token')).then(function (res) {
+  async processRegister() {
+    const phone = this.data.loginPhone
+    const pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) {
+      wx.showToast({ title: 'Enter valid phone', icon: 'none' })
+      return
+    }
+    if (!pwd || pwd.length < 4) {
+      wx.showToast({ title: 'Password min 4 chars', icon: 'none' })
+      return
+    }
+    wx.showLoading({ title: 'Registering...' })
+    const res = await WXAPI.register(phone, pwd, 'Tea Fan')
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
+      this.onShow()
+      wx.showToast({ title: 'Register success', icon: 'success' })
+    } else {
+      wx.showToast({ title: res.message || 'Register failed', icon: 'none' })
+    }
+  },
+  bindPhone() {
+    this.setData({ wxlogin: false })
+  },
+  getUserApiInfo() {
+    WXAPI.userDetail(wx.getStorageSync('token')).then(res => {
       if (res.code == 0) {
-        let _data = {}
-        _data.apiUserInfoMap = res.data
-        if (res.data.base.mobile) {
-          _data.userMobile = res.data.base.mobile
-        }
-        if (that.data.order_hx_uids && that.data.order_hx_uids.indexOf(res.data.base.id) != -1) {
-          _data.canHX = true // 具有扫码核销的权限
-        }
-        that.setData(_data);
+        this.setData({ apiUserInfoMap: res.data })
       }
     })
   },
-  getUserAmount: function () {
-    var that = this;
-    WXAPI.userAmount(wx.getStorageSync('token')).then(function (res) {
+  getUserAmount() {
+    WXAPI.userAmount(wx.getStorageSync('token')).then(res => {
       if (res.code == 0) {
-        that.setData({
+        this.setData({
           balance: (res.data.balance || 0).toFixed(2),
-          freeze: (res.data.freeze || 0).toFixed(2),
+          freeze: res.data.freeze || 0,
           score: res.data.score || 0,
           growth: res.data.growth || 0
-        });
+        })
       }
     })
   },
-  goAsset: function () {
-    wx.navigateTo({
-      url: "/pages/asset/index"
-    })
-  },
-  goScore: function () {
-    wx.navigateTo({
-      url: "/pages/score/index"
-    })
-  },
-  goOrder: function (e) {
-    wx.navigateTo({
-      url: "/pages/order-list/index?type=" + e.currentTarget.dataset.type
-    })
-  },
-  cancelLogin() {
-    this.setData({
-      wxlogin: true
-    })
-  },
-  goLogin() {
-    this.setData({
-      wxlogin: false
-    })
-  },
+  goAsset() { wx.navigateTo({ url: '/pages/asset/index' }) },
+  goScore() { wx.navigateTo({ url: '/pages/score/index' }) },
+  goOrder(e) { wx.navigateTo({ url: '/pages/order-list/index?type=' + e.currentTarget.dataset.type }) },
+  cancelLogin() { this.setData({ wxlogin: true }) },
+  goLogin() { this.setData({ wxlogin: false }) },
   processLogin(e) {
-    if (!e.detail.userInfo) {
-      wx.showToast({
-        title: '已取消',
-        icon: 'none',
-      })
-      return;
-    }
-    AUTH.register(this);
+    // Legacy handler - redirect to phone login
+    this.setData({ wxlogin: false })
   },
-  scanOrderCode(){
+  scanOrderCode() {
     wx.scanCode({
       onlyFromCamera: true,
-      success(res) {
-        wx.navigateTo({
-          url: '/pages/order-details/scan-result?hxNumber=' + res.result,
-        })
-      },
-      fail(err) {
-        console.error(err)
-        wx.showToast({
-          title: err.errMsg,
-          icon: 'none'
-        })
-      }
+      success(res) { wx.navigateTo({ url: '/pages/order-details/scan-result?hxNumber=' + res.result }) },
+      fail(err) { wx.showToast({ title: err.errMsg, icon: 'none' }) }
     })
   },
-  clearStorage(){
+  clearStorage() {
     wx.clearStorageSync()
-    wx.showToast({
-      title: '已清除',
-      icon: 'success'
-    })
-  },
+    wx.showToast({ title: 'Cleared', icon: 'success' })
+  }
 })

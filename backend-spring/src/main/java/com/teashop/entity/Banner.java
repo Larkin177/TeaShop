@@ -11,7 +11,7 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(length = 500, nullable = false)
     private String image;
 
     @Column(columnDefinition = "varchar(255) default ''")

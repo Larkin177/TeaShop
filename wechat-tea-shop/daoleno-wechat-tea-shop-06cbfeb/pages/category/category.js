@@ -4,22 +4,20 @@ const TOOLS = require('../../utils/tools.js') // TOOLS.showTabBarBadge();
 
 Page({
   /**
-   * 页面的初始数据
+   * 椤甸潰鐨勫垵濮嬫暟鎹?
    */
   data: {
     categories: [],
-    categorySelected: {
-      name: '',
-      id: ''
-    },
+    categorySelected: { name: '', id: '' },
     currentGoods: [],
     onLoadStatus: true,
     scrolltop: 0,
-
-    skuCurGoods: undefined
+    skuCurGoods: undefined,
+    loginPhone: '',
+    loginPassword: ''
   },
   /**
-   * 生命周期函数--监听页面加载
+   * 鐢熷懡鍛ㄦ湡鍑芥暟--鐩戝惉椤甸潰鍔犺浇
    */
   onLoad: function(options) {
     wx.showShareMenu({
@@ -29,7 +27,7 @@ Page({
   },
   async categories() {
     wx.showLoading({
-      title: '加载中',
+      title: '鍔犺浇涓?,
     })
     const res = await WXAPI.goodsCategory()
     wx.hideLoading()
@@ -64,7 +62,7 @@ Page({
   },
   async getGoodsList() {
     wx.showLoading({
-      title: '加载中',
+      title: '鍔犺浇涓?,
     })
     const res = await WXAPI.goods({
       categoryId: this.data.categorySelected.id,
@@ -138,7 +136,7 @@ Page({
         this.setData({
           wxlogin: isLogined
         })
-        TOOLS.showTabBarBadge() // 获取购物车数据，显示TabBarBadge
+        TOOLS.showTabBarBadge() // 鑾峰彇璐墿杞︽暟鎹紝鏄剧ずTabBarBadge
       }
     })
     const _categoryId = wx.getStorageSync('_categoryId')
@@ -159,7 +157,7 @@ Page({
     }
     if (curGood.stores <= 0) {
       wx.showToast({
-        title: '已售罄~',
+        title: '宸插敭缃剘',
         icon: 'none'
       })
       return
@@ -176,7 +174,7 @@ Page({
         wxlogin: isLogined
       })
       if (isLogined) {
-        // 处理加入购物车的业务逻辑
+        // 澶勭悊鍔犲叆璐墿杞︾殑涓氬姟閫昏緫
         this.addShopCarDone(options)
       }
     })
@@ -184,7 +182,7 @@ Page({
   async addShopCarDone(options){
     const res = await WXAPI.shippingCarInfoAddItem(wx.getStorageSync('token'), options.goodsId, options.buyNumber, options.sku)
     if (res.code == 30002) {
-      // 需要选择规格尺寸
+      // 闇€瑕侀€夋嫨瑙勬牸灏哄
       const skuCurGoodsRes = await WXAPI.goodsDetail(options.goodsId)
       if (skuCurGoodsRes.code != 0) {
         wx.showToast({
@@ -209,14 +207,14 @@ Page({
       return
     }
     wx.showToast({
-      title: '加入成功',
+      title: '鍔犲叆鎴愬姛',
       icon: 'success'
     })
     this.setData({
       skuCurGoods: null
     })
     wx.showTabBar()
-    TOOLS.showTabBarBadge() // 获取购物车数据，显示TabBarBadge
+    TOOLS.showTabBarBadge() // 鑾峰彇璐墿杞︽暟鎹紝鏄剧ずTabBarBadge
   },
   storesJia(){
     const skuCurGoods = this.data.skuCurGoods
@@ -245,7 +243,7 @@ Page({
   skuSelect(e){
     const pid = e.currentTarget.dataset.pid
     const id = e.currentTarget.dataset.id
-    // 处理选中
+    // 澶勭悊閫変腑
     const skuCurGoods = this.data.skuCurGoods
     const property = skuCurGoods.properties.find(ele => {return ele.id == pid})
     property.childsCurGoods.forEach(ele => {
@@ -261,7 +259,7 @@ Page({
   },
   addCarSku(){
     const skuCurGoods = this.data.skuCurGoods
-    const propertySize = skuCurGoods.properties.length // 有几组SKU
+    const propertySize = skuCurGoods.properties.length // 鏈夊嚑缁凷KU
     const sku = []
     skuCurGoods.properties.forEach(p => {
       const o = p.childsCurGoods.find(ele => {return ele.active})
@@ -275,7 +273,7 @@ Page({
     })
     if (sku.length != propertySize) {
       wx.showToast({
-        title: '请选择规格',
+        title: '璇烽€夋嫨瑙勬牸',
         icon: 'none'
       })
       return

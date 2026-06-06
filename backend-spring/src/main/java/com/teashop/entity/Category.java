@@ -17,6 +17,6 @@ public class Category {
     @Column(name = "sort_order", columnDefinition = "int default 0")
     private Integer sortOrder = 0;
 
-    @Column(columnDefinition = "varchar(50) default ''")
+    @Column(columnDefinition = "varchar(500) default ''")
     private String icon = "";
 }

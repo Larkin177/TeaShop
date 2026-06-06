@@ -1,20 +1,25 @@
-﻿<template name="apifmLogin">
+<template name="apifmLogin">
   <view class="apifmLogin" hidden="{{wxlogin}}">
     <view class="s-b">
       <view class="s-l-b">
         <image src="/images/nologin.png" />
-        <text>微信授权登录</text>
+        <text>Welcome</text>
       </view>
       <view class="s-t-b">
-        <view class="s-t-i">
-          <text>·</text>一键微信授权登录</view>
-        <view class="s-t-i">
-          <text>·</text>我们不会公布您的这些信息</view>
-        <view class="s-t-i">
-          <text>·</text>只是为了给您提供更好的服务</view>
+        <view class="login-form">
+          <view class="form-item">
+            <text class="label">Phone</text>
+            <input type="number" placeholder="13800138000" bindinput="onPhoneInput" value="{{loginPhone}}" maxlength="11" />
+          </view>
+          <view class="form-item">
+            <text class="label">Password</text>
+            <input type="text" password placeholder="123456" bindinput="onPasswordInput" value="{{loginPassword}}" />
+          </view>
+        </view>
       </view>
-      <button class="l" bindtap="processLogin">允许</button>
-      <button class="c" bindtap="cancelLogin" type="default">暂不登录</button>
+      <button class="l" bindtap="processPhoneLogin">Login</button>
+      <button class="l register-btn" bindtap="processRegister" type="default">Register</button>
+      <button class="c" bindtap="cancelLogin" type="default">Cancel</button>
     </view>
   </view>
 </template>

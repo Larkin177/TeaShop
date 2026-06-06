@@ -3,101 +3,78 @@ import type { Coupon } from '../types';
 
 interface CouponCardProps {
   coupon: Coupon;
-  action?: 'claim' | 'use' | 'none';
-  onAction?: (coupon: Coupon) => void;
-  variant?: 'default' | 'compact';
+  onClaim?: () => void;
+  onUse?: () => void;
+  mode?: 'available' | 'mine';
+  disabled?: boolean;
 }
 
 const CouponCard: React.FC<CouponCardProps> = ({
   coupon,
-  action = 'none',
-  onAction,
-  variant = 'default',
+  onClaim,
+  onUse,
+  mode = 'available',
+  disabled = false,
 }) => {
-  const isExpired = new Date(coupon.end_time) < new Date();
+  const isPercent = coupon.type === 'percent';
+  const displayValue = isPercent ? `${coupon.value / 10}折` : `¥${coupon.value}`;
   const isUsed = coupon.is_used === 1;
-
-  const getActionButton = () => {
-    if (action === 'claim') {
-      return (
-        <button
-          onClick={() => onAction?.(coupon)}
-          className="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-brand-500 active:bg-gray-50"
-        >
-          领取
-        </button>
-      );
-    }
-    if (action === 'use' && !isUsed && !isExpired) {
-      return (
-        <button
-          onClick={() => onAction?.(coupon)}
-          className="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-brand-500 active:bg-gray-50"
-        >
-          去使用
-        </button>
-      );
-    }
-    return null;
-  };
-
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return `${d.getMonth() + 1}.${d.getDate()}`;
-  };
-
-  if (variant === 'compact') {
-    return (
-      <div className="flex-shrink-0 w-[280px] rounded-xl overflow-hidden shadow-card">
-        <div className="flex">
-          <div className="gradient-brand flex flex-col items-center justify-center px-5 py-4 min-w-[90px]">
-            <span className="text-white text-xs">¥</span>
-            <span className="text-white text-2xl font-bold leading-none">{coupon.value}</span>
-            {coupon.min_amount > 0 && (
-              <span className="text-white/80 text-[10px] mt-1">满{coupon.min_amount}可用</span>
-            )}
-          </div>
-          <div className="flex-1 bg-white p-3 flex flex-col justify-between">
-            <div>
-              <p className="text-sm font-medium text-guming-text text-ellipsis-1">{coupon.name}</p>
-              <p className="text-xs text-guming-sub mt-1">
-                {formatDate(coupon.start_time)} - {formatDate(coupon.end_time)}
-              </p>
-            </div>
-            <div className="flex justify-end">{getActionButton()}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isExpired = new Date(coupon.end_time) < new Date();
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-card ${isUsed || isExpired ? 'opacity-60' : ''}`}>
-      <div className="flex">
-        <div className="gradient-brand flex flex-col items-center justify-center px-5 py-4 min-w-[100px]">
-          <div className="flex items-baseline">
-            <span className="text-white text-xs">¥</span>
-            <span className="text-white text-3xl font-bold leading-none">{coupon.value}</span>
-          </div>
-          {coupon.min_amount > 0 && (
-            <span className="text-white/80 text-xs mt-1">满{coupon.min_amount}可用</span>
-          )}
+    <div
+      className="flex rounded-xl overflow-hidden shrink-0"
+      style={{
+        width: 260,
+        height: 90,
+        opacity: disabled || isUsed || isExpired ? 0.6 : 1,
+        background: '#fff',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+      }}
+    >
+      {/* Left colored portion */}
+      <div
+        className="flex flex-col items-center justify-center px-4"
+        style={{
+          background: isUsed || isExpired ? '#ccc' : 'linear-gradient(135deg, #4a9e4d, #3d8a40)',
+          minWidth: 80,
+        }}
+      >
+        <span className="text-white text-[22px] font-bold leading-none">{displayValue}</span>
+        {coupon.min_amount > 0 && (
+          <span className="text-white/80 text-[10px] mt-1">满{coupon.min_amount}可用</span>
+        )}
+      </div>
+      {/* Right info */}
+      <div className="flex-1 flex flex-col justify-between py-2 px-3">
+        <div>
+          <div className="text-[13px] font-semibold text-gray-800 line-clamp-1">{coupon.name}</div>
+          <div className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{coupon.description}</div>
         </div>
-        <div className="flex-1 bg-white p-3 flex flex-col justify-between">
-          <div>
-            <p className="text-sm font-medium text-guming-text text-ellipsis-1">{coupon.name}</p>
-            <p className="text-xs text-guming-sub mt-1">
-              {formatDate(coupon.start_time)} - {formatDate(coupon.end_time)}
-            </p>
-            {coupon.description && (
-              <p className="text-[11px] text-guming-sub mt-0.5 text-ellipsis-1">{coupon.description}</p>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            {isUsed && <span className="text-xs text-guming-sub">已使用</span>}
-            {isExpired && !isUsed && <span className="text-xs text-guming-sub">已过期</span>}
-            {!isUsed && !isExpired && getActionButton()}
-          </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-gray-400">
+            {coupon.end_time?.slice(0, 10)}到期
+          </span>
+          {mode === 'available' && (
+            <button
+              onClick={onClaim}
+              disabled={disabled}
+              className="px-2.5 py-0.5 rounded-full text-[11px] text-white"
+              style={{ background: disabled ? '#ccc' : '#ff7a2e' }}
+            >
+              领取
+            </button>
+          )}
+          {mode === 'mine' && (
+            <button
+              onClick={onUse}
+              disabled={isUsed || isExpired}
+              className="px-2.5 py-0.5 rounded-full text-[11px] text-white"
+              style={{ background: isUsed || isExpired ? '#ccc' : '#ff7a2e' }}
+            >
+              {isUsed ? '已使用' : isExpired ? '已过期' : '去使用'}
+            </button>
+          )}
         </div>
       </div>
     </div>

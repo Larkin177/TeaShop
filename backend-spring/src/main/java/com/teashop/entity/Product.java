@@ -20,7 +20,7 @@ public class Product {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(columnDefinition = "varchar(255) default ''")
+    @Column(columnDefinition = "varchar(500) default ''")
     private String image = "";
 
     @Column(name = "base_price", nullable = false)
@@ -35,3 +35,4 @@ public class Product {
     @Column(name = "monthly_sales", columnDefinition = "int default 0")
     private Integer monthlySales = 0;
 }
+

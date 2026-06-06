@@ -1,158 +1,190 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore, useStoreSelectionStore } from '../store';
+import { useCartStore, useUserStore, useStoreSelectionStore } from '../store';
+import * as api from '../api';
+import type { Coupon } from '../types';
 import Header from '../components/Header';
 import QuantityStepper from '../components/QuantityStepper';
 import EmptyState from '../components/EmptyState';
-import { Close } from '../components/Icons';
-import * as api from '../api';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const { items, totalPrice, totalCount, updateQuantity, removeItem, clearCart } = useCartStore();
-  const { selectedStoreId, selectedStoreName } = useStoreSelectionStore();
+  const { items, totalPrice, fetchCart, updateQuantity, removeItem, clearCart } = useCartStore();
+  const isLoggedIn = useUserStore((s) => s.isLoggedIn);
+  const selectedStoreId = useStoreSelectionStore((s) => s.selectedStoreId);
+
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [selectedCouponId, setSelectedCouponId] = useState<number | null>(null);
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const formatSpecs = (specs: Record<string, string>, toppings: Array<{ name: string }>) => {
-    const parts: string[] = [];
-    Object.values(specs).forEach((v) => parts.push(v));
-    toppings.forEach((t) => parts.push(t.name));
-    return parts.join('/');
-  };
+  useEffect(() => {
+    fetchCart();
+    if (isLoggedIn) {
+      api.getMyCoupons().then((res: any) => setCoupons(res.data || [])).catch(() => {});
+    }
+  }, [isLoggedIn]);
 
-  const handleSubmit = async () => {
-    if (!selectedStoreId || items.length === 0) return;
+  const selectedCoupon = coupons.find((c) => c.id === selectedCouponId);
+  const discountAmount = selectedCoupon
+    ? selectedCoupon.type === 'percent'
+      ? totalPrice * (1 - selectedCoupon.value / 100)
+      : selectedCoupon.value
+    : 0;
+  const payAmount = Math.max(0, totalPrice - discountAmount);
+
+  const handleCheckout = async () => {
+    if (items.length === 0 || submitting) return;
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
     setSubmitting(true);
     try {
-      const orderData = {
-        store_id: selectedStoreId,
+      const res: any = await api.createOrder({
+        store_id: selectedStoreId || 1,
+        coupon_id: selectedCouponId,
         remark,
-        items: items.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          specs: item.specs,
-          toppings: item.toppings,
-          unit_price: item.unit_price,
-        })),
-      };
-      const res: any = await api.createOrder(orderData);
-      await clearCart();
+      });
       navigate(`/orders/${res.data.id}`);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSubmitting(false);
-    }
+    } catch { /* ignore */ }
+    setSubmitting(false);
   };
 
   return (
-    <div className="h-full flex flex-col bg-guming-bg">
+    <div className="flex flex-col h-full bg-cream">
       <Header title="购物车" />
 
-      {!selectedStoreId ? (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            emoji="🏪"
-            message="请先选择门店"
-            actionText="选择门店"
-            onAction={() => navigate('/store-select')}
-          />
-        </div>
-      ) : items.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            emoji="🛒"
-            message="购物车空空如也"
-            actionText="去点单"
-            onAction={() => navigate('/menu')}
-          />
-        </div>
+      {items.length === 0 ? (
+        <EmptyState
+          icon="🛒"
+          text="购物车是空的"
+          action={{ label: '去点单', onClick: () => navigate('/menu') }}
+        />
       ) : (
         <>
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            {/* Store */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-guming-text font-medium">{selectedStoreName}</span>
-              <button onClick={clearCart} className="text-xs text-guming-sub">清空购物车</button>
+            {/* Cart items */}
+            <div className="flex flex-col gap-2.5 mb-4">
+              {items.map((item) => {
+                const specsText = Object.entries(item.specs)
+                  .map(([k, v]) => `${k}:${v}`)
+                  .join(' / ');
+                const toppingsText = item.toppings.map((t) => t.name).join('、');
+                return (
+                  <div key={item.id} className="bg-white rounded-xl p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[14px] font-bold text-gray-800">{item.product_name}</div>
+                        {specsText && <div className="text-[11px] text-gray-400 mt-0.5">{specsText}</div>}
+                        {toppingsText && <div className="text-[11px] text-gray-400">加料: {toppingsText}</div>}
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-[18px] text-gray-300 ml-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-[14px] font-bold" style={{ color: '#e85c3a' }}>
+                        ¥{(item.unit_price * item.quantity).toFixed(2)}
+                      </span>
+                      <QuantityStepper
+                        value={item.quantity}
+                        size="sm"
+                        onChange={(v) => updateQuantity(item.id, v)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Items */}
-            <div className="space-y-2">
-              {items.map((item) => (
-                <div key={item.id} className="bg-white rounded-xl shadow-card p-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-[15px] font-medium text-guming-text text-ellipsis-1">
-                        {item.product_name}
-                      </h3>
-                      <p className="text-xs text-guming-sub mt-0.5 text-ellipsis-1">
-                        {formatSpecs(item.specs, item.toppings)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="ml-2 w-6 h-6 flex items-center justify-center text-guming-sub"
-                    >
-                      <Close size={16} />
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between mt-3">
-                    <QuantityStepper
-                      value={item.quantity}
-                      min={1}
-                      max={99}
-                      onChange={(q) => updateQuantity(item.id, q)}
-                      size="sm"
-                    />
-                    <span className="text-guming-price font-bold">
-                      ¥{(item.unit_price * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
+            {/* Coupon selector */}
+            {coupons.length > 0 && (
+              <div className="bg-white rounded-xl p-3 mb-3">
+                <div className="text-[13px] font-semibold text-gray-800 mb-2">🎫 优惠券</div>
+                <div className="flex flex-col gap-2">
+                  {coupons.filter((c) => !c.is_used).map((c) => {
+                    const isSelected = selectedCouponId === c.id;
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedCouponId(isSelected ? null : c.id)}
+                        className="flex items-center justify-between p-2 rounded-lg transition-colors"
+                        style={{
+                          background: isSelected ? '#e8f5e9' : '#f8f8f8',
+                          border: isSelected ? '1px solid #4a9e4d' : '1px solid transparent',
+                        }}
+                      >
+                        <div className="text-left">
+                          <div className="text-[12px] font-medium text-gray-800">{c.name}</div>
+                          <div className="text-[11px] text-gray-400">
+                            {c.type === 'percent' ? `${c.value / 10}折` : `减¥${c.value}`}
+                            {c.min_amount > 0 ? ` · 满${c.min_amount}可用` : ''}
+                          </div>
+                        </div>
+                        <span
+                          className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                          style={{
+                            borderColor: isSelected ? '#4a9e4d' : '#ddd',
+                            background: isSelected ? '#4a9e4d' : 'transparent',
+                          }}
+                        >
+                          {isSelected && <span className="text-white text-[10px]">✓</span>}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
 
             {/* Remark */}
-            <div className="mt-4 bg-white rounded-xl shadow-card p-3">
-              <label className="text-sm text-guming-text font-medium block mb-2">备注</label>
+            <div className="bg-white rounded-xl p-3 mb-3">
+              <div className="text-[13px] font-semibold text-gray-800 mb-2">备注</div>
               <input
-                type="text"
-                placeholder="请输入备注信息"
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
-                className="w-full bg-gray-50 rounded-lg px-3 py-2 text-sm text-guming-text placeholder:text-guming-sub"
+                placeholder="如少冰、多糖等"
+                className="w-full text-[13px] bg-gray-50 rounded-lg px-3 py-2 border-none"
               />
             </div>
 
-            {/* Price Summary */}
-            <div className="mt-3 bg-white rounded-xl shadow-card p-3">
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-guming-sub">商品小计</span>
-                <span className="text-guming-text">¥{totalPrice.toFixed(2)}</span>
+            {/* Price summary */}
+            <div className="bg-white rounded-xl p-3 mb-4">
+              <div className="flex items-center justify-between text-[13px] mb-1">
+                <span className="text-gray-500">商品合计</span>
+                <span className="text-gray-800">¥{totalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-guming-sub">优惠</span>
-                <span className="text-guming-price">-¥0.00</span>
-              </div>
-              <div className="border-t border-guming-border pt-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-guming-text">合计</span>
-                <span className="text-guming-price font-bold text-lg">¥{totalPrice.toFixed(2)}</span>
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-[13px] mb-1">
+                  <span className="text-gray-500">优惠减免</span>
+                  <span style={{ color: '#4a9e4d' }}>-¥{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-[15px] font-bold mt-1 pt-1 border-t border-gray-100">
+                <span className="text-gray-800">应付</span>
+                <span style={{ color: '#e85c3a' }}>¥{payAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom */}
-          <div className="flex-shrink-0 bg-white border-t border-guming-border safe-bottom">
-            <div className="px-4 py-3">
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="w-full gradient-brand text-white font-medium py-3.5 rounded-full text-center active:opacity-90 transition-opacity disabled:opacity-60"
-              >
-                去结算 ({totalCount}件)
-              </button>
+          {/* Bottom bar */}
+          <div className="flex items-center px-4 py-2.5 bg-white border-t border-gray-100 shrink-0 safe-bottom">
+            <div className="flex-1">
+              <span className="text-[12px] text-gray-500">合计 </span>
+              <span className="text-[18px] font-bold" style={{ color: '#e85c3a' }}>¥{payAmount.toFixed(2)}</span>
             </div>
+            <button
+              onClick={handleCheckout}
+              disabled={submitting}
+              className="px-6 py-2.5 rounded-full text-white text-[14px] font-semibold"
+              style={{ background: 'linear-gradient(135deg, #ff7a2e, #ff9651)' }}
+            >
+              {submitting ? '提交中...' : '去结算'}
+            </button>
           </div>
         </>
       )}

@@ -4,20 +4,22 @@ interface OrderStatusBadgeProps {
   status: number;
 }
 
-const statusConfig: Record<number, { label: string; bg: string; text: string }> = {
-  0: { label: '待付款', bg: 'bg-orange-50', text: 'text-brand-500' },
-  1: { label: '制作中', bg: 'bg-blue-50', text: 'text-blue-500' },
-  2: { label: '可取餐', bg: 'bg-green-50', text: 'text-green-500' },
-  3: { label: '已完成', bg: 'bg-gray-50', text: 'text-gray-500' },
-  4: { label: '已取消', bg: 'bg-red-50', text: 'text-red-400' },
+const statusMap: Record<number, { label: string; bg: string; color: string }> = {
+  0: { label: '待付款', bg: '#fff3e0', color: '#ff7a2e' },
+  1: { label: '待制作', bg: '#e8f5e9', color: '#4a9e4d' },
+  2: { label: '制作中', bg: '#e3f2fd', color: '#1976d2' },
+  3: { label: '已完成', bg: '#f5f5f5', color: '#999' },
+  4: { label: '已取消', bg: '#f5f5f5', color: '#999' },
 };
 
 const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status }) => {
-  const config = statusConfig[status] || statusConfig[3];
-
+  const s = statusMap[status] || statusMap[3];
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-      {config.label}
+    <span
+      className="inline-block px-2 py-0.5 rounded text-[11px]"
+      style={{ background: s.bg, color: s.color }}
+    >
+      {s.label}
     </span>
   );
 };
