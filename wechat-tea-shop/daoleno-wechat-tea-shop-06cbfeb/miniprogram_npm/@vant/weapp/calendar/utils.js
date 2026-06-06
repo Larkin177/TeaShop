@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMonths = exports.getMonthEndDay = exports.copyDates = exports.calcDateNum = exports.getToday = exports.getNextDay = exports.getPrevDay = exports.getDayByOffset = exports.compareDay = exports.compareMonth = exports.formatMonthTitle = exports.ROW_HEIGHT = void 0;
 exports.ROW_HEIGHT = 64;
 function formatMonthTitle(date) {
     if (!(date instanceof Date)) {
         date = new Date(date);
     }
-    return date.getFullYear() + "\u5E74" + (date.getMonth() + 1) + "\u6708";
+    return "".concat(date.getFullYear(), "\u5E74").concat(date.getMonth() + 1, "\u6708");
 }
 exports.formatMonthTitle = formatMonthTitle;
 function compareMonth(date1, date2) {
@@ -46,6 +47,7 @@ function getDayByOffset(date, offset) {
     date.setDate(date.getDate() + offset);
     return date;
 }
+exports.getDayByOffset = getDayByOffset;
 function getPrevDay(date) {
     return getDayByOffset(date, -1);
 }
@@ -54,6 +56,12 @@ function getNextDay(date) {
     return getDayByOffset(date, 1);
 }
 exports.getNextDay = getNextDay;
+function getToday() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+}
+exports.getToday = getToday;
 function calcDateNum(date) {
     var day1 = new Date(date[0]).getTime();
     var day2 = new Date(date[1]).getTime();

@@ -1,4 +1,4 @@
-﻿<import src="/template/login/index.wxml" />
+<import src="/template/login/index.wxml" />
 
 <view class="container">
 	<view wx:if="{{apiUserInfoMap}}" class="userinfo">

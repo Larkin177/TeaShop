@@ -14,6 +14,8 @@ Page({
     scrolltop: 0,
     skuCurGoods: undefined,
     loginPhone: '',
+    loginPassword: '',,
+    loginPhone: '',
     loginPassword: ''
   },
   /**
@@ -27,12 +29,7 @@ Page({
   },
   async categories() {
     wx.showLoading({
-      title: '鍔犺浇涓?,
-    })
-    const res = await WXAPI.goodsCategory()
-    wx.hideLoading()
-    let categories = [];
-    let categoryName = '';
+      title: '加载中...'';
     let categoryId = '';
     if (res.code == 0) {
       if (this.data.categorySelected.id) {
@@ -62,38 +59,7 @@ Page({
   },
   async getGoodsList() {
     wx.showLoading({
-      title: '鍔犺浇涓?,
-    })
-    const res = await WXAPI.goods({
-      categoryId: this.data.categorySelected.id,
-      page: 1,
-      pageSize: 100000
-    })
-    wx.hideLoading()
-    if (res.code == 700) {
-      this.setData({
-        currentGoods: null
-      });
-      return
-    }
-    this.setData({
-      currentGoods: res.data
-    });
-  },
-  toDetailsTap: function(e) {
-    wx.navigateTo({
-      url: "/pages/goods-details/index?id=" + e.currentTarget.dataset.id
-    })
-  },
-  onCategoryClick: function(e) {
-    var that = this;
-    var id = e.target.dataset.id;
-    if (id === that.data.categorySelected.id) {
-      that.setData({
-        scrolltop: 0,
-      })
-    } else {
-      var categoryName = '';
+      title: '加载中...'';
       for (var i = 0; i < that.data.categories.length; i++) {
         let item = that.data.categories[i];
         if (item.id == id) {
@@ -285,4 +251,34 @@ Page({
     }
     this.addShopCarDone(options)
   },
+
+  ,
+  onPhoneInput(e) { this.setData({ loginPhone: e.detail.value }) },
+  onPasswordInput(e) { this.setData({ loginPassword: e.detail.value }) },
+  async processPhoneLogin() {
+    const phone = this.data.loginPhone, pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
+    if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
+    wx.showLoading({ title: '登录中...' })
+    const res = await WXAPI.login(phone, pwd)
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true, loginPhone: '', loginPassword: '' })
+      this.onShow()
+      wx.showToast({ title: '登录成功', icon: 'success' })
+    } else { wx.showToast({ title: res.message || '登录失败', icon: 'none' }) }
+  },
+  async processRegister() {
+    const phone = this.data.loginPhone, pwd = this.data.loginPassword
+    if (!phone || phone.length !== 11) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
+    if (!pwd || pwd.length < 4) { wx.showToast({ title: '密码至少4位', icon: 'none' }); return }
+    wx.showLoading({ title: '注册中...' })
+    const res = await WXAPI.register(phone, pwd, '茶友')
+    wx.hideLoading()
+    if (res.code === 0) {
+      this.setData({ wxlogin: true })
+      this.onShow()
+      wx.showToast({ title: '注册成功', icon: 'success' })
+    } else { wx.showToast({ title: res.message || '注册失败', icon: 'none' }) }
+  }
 })
